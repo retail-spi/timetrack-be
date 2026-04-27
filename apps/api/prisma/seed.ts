@@ -1,5 +1,3 @@
-apps/api/prisma/seed.ts
-
 import { PrismaClient, EmployeeScope, Role, ContractType } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
