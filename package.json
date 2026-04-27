@@ -1,13 +1,18 @@
 {
   "name": "timetrack-be",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "db:migrate": "cd apps/api && npx prisma migrate dev",
     "db:seed": "cd apps/api && npx ts-node prisma/seed.ts"
   },
   "devDependencies": {
     "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0"
   }
 }
-

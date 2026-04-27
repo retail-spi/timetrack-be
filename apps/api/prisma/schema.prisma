@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  HR
+  MANAGER
+  EMPLOYEE
+}
+
+enum EmployeeScope {
+  employee_office
+  employee_commercial
+  worker
+}
+
+enum ContractType {
+  HOURS_20
+  HOURS_38
+  CUSTOM
+}
+
+enum EntryStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CorrectionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  APPROVE
+  REJECT
+  LOGIN
+  EXPORT
+}
+
+// ─── USER & AUTH ──────────────────────────────────────────────────────────────
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  role          Role          @default(EMPLOYEE)
+  scope         EmployeeScope @default(employee_office)
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  managerId     String?
+  manager       User?         @relation("ManagerEmployees", fields: [managerId], references: [id])
+  employees     User[]        @relation("ManagerEmployees")
+
+  hrScopeId     String?
+  hrScope       HrScope?      @relation(fields: [hrScopeId], references: [id])
+
+  contracts         Contract[]
+  timeEntries       TimeEntry[]
+  workerTimeEntries WorkerTimeEntry[]
+
+  // Corrections soumises vs approbations données
+  submittedCorrections  Correction[] @relation("SubmittedBy")
+  approvedCorrections   Correction[] @relation("ApprovedBy")
+
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model HrScope {
+  id    String @id @default(cuid())
+  name  String @unique
+  users User[]
+
+  @@map("hr_scopes")
+}
+
+// ─── CONTRATS ────────────────────────────────────────────────────────────────
+
+model Contract {
+  id           String       @id @default(cuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  contractType ContractType
+  weeklyHours  Float        // 20.0, 38.0, ou custom
+  startDate    DateTime
+  endDate      DateTime?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+
+  @@map("contracts")
+}
+
+// ─── ÉQUIPES ─────────────────────────────────────────────────────────────────
+
+model Team {
+  id        String    @id @default(cuid())
+  name      String
+  managerId String
+  projects  Project[]
+  createdAt DateTime  @default(now())
+
+  @@map("teams")
+}
+
+// ─── PROJETS / SITES ─────────────────────────────────────────────────────────
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  code        String    @unique
+  teamId      String?
+  team        Team?     @relation(fields: [teamId], references: [id])
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  timeEntries       TimeEntry[]
+  workerTimeEntries WorkerTimeEntry[]
+
+  @@map("projects")
+}
+
+// ─── TYPES ACTIVITÉ (employee_office / employee_commercial) ───────────────────
+
+model ActivityType {
+  id          String      @id @default(cuid())
+  code        String      @unique
+  label       String
+  isActive    Boolean     @default(true)
+  timeEntries TimeEntry[]
+
+  @@map("activity_types")
+}
+
+// ─── TYPES TÂCHE (worker) ────────────────────────────────────────────────────
+
+model TaskType {
+  id                String            @id @default(cuid())
+  code              String            @unique
+  label             String
+  isActive          Boolean           @default(true)
+  workerTimeEntries WorkerTimeEntry[]
+
+  @@map("task_types")
+}
+
+// ─── TIME ENTRIES (employee_office / employee_commercial) ─────────────────────
+
+model TimeEntry {
+  id             String         @id @default(cuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  date           DateTime       @db.Date
+  startTime      DateTime
+  endTime        DateTime
+  breakMinutes   Int            @default(0)
+  activityTypeId String
+  activityType   ActivityType   @relation(fields: [activityTypeId], references: [id])
+  projectId      String?
+  project        Project?       @relation(fields: [projectId], references: [id])
+  note           String?
+  status         EntryStatus    @default(PENDING)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  corrections    Correction[]
+
+  @@map("time_entries")
+}
+
+// ─── WORKER TIME ENTRIES (worker) ─────────────────────────────────────────────
+
+model WorkerTimeEntry {
+  id           String       @id @default(cuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  date         DateTime     @db.Date
+  hours        Float        // décimal uniquement, incrément 0.5
+  taskTypeId   String
+  taskType     TaskType     @relation(fields: [taskTypeId], references: [id])
+  projectId    String?
+  project      Project?     @relation(fields: [projectId], references: [id])
+  note         String?
+  status       EntryStatus  @default(PENDING)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  corrections  Correction[]
+
+  @@map("worker_time_entries")
+}
+
+// ─── CORRECTIONS ─────────────────────────────────────────────────────────────
+
+model Correction {
+  id                  String           @id @default(cuid())
+  submittedById       String
+  submittedBy         User             @relation("SubmittedBy", fields: [submittedById], references: [id])
+
+  // Exactement l'un des deux doit être non-null (contrôlé au niveau service)
+  timeEntryId         String?
+  timeEntry           TimeEntry?       @relation(fields: [timeEntryId], references: [id])
+
+  workerTimeEntryId   String?
+  workerTimeEntry     WorkerTimeEntry? @relation(fields: [workerTimeEntryId], references: [id])
+
+  reason              String
+  proposedData        Json             // snapshot des données corrigées
+  status              CorrectionStatus @default(PENDING)
+
+  approvedById        String?
+  approvedBy          User?            @relation("ApprovedBy", fields: [approvedById], references: [id])
+  approvedAt          DateTime?
+
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  @@map("corrections")
+}
+
+// ─── AUDIT LOGS ───────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  action     AuditAction
+  entity     String      // nom de l'entité (TimeEntry, Correction, ...)
+  entityId   String
+  before     Json?
+  after      Json?
+  ip         String?
+  createdAt  DateTime    @default(now())
+
+  @@map("audit_logs")
+}
+
+// ─── ALERTES ──────────────────────────────────────────────────────────────────
+
+model Alert {
+  id        String   @id @default(cuid())
+  userId    String
+  week      String   // format "2024-W23"
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("alerts")
+}
