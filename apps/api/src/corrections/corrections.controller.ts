@@ -4,7 +4,8 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { CorrectionsService, CreateCorrectionDto } from './corrections.service';
-import { Role, User } from '@prisma/client';
+import type { User } from '@prisma/client';
+import { Role } from '@prisma/client';
 
 @Controller('corrections')
 @UseGuards(JwtAuthGuard, RolesGuard)

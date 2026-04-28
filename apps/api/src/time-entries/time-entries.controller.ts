@@ -6,7 +6,8 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { TimeEntriesService } from './time-entries.service';
 import { CreateTimeEntryDto } from './dto/create-time-entry.dto';
 import { UpdateTimeEntryDto } from './dto/update-time-entry.dto';
-import { Role, User } from '@prisma/client';
+import type { User } from '@prisma/client';
+import { Role } from '@prisma/client';
 
 @Controller('time-entries')
 @UseGuards(JwtAuthGuard, RolesGuard)

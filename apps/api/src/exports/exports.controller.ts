@@ -1,12 +1,13 @@
 import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { AuditAction, Role, User } from '@prisma/client';
+import type { User } from '@prisma/client';
+import { AuditAction, Role } from '@prisma/client';
 
 @Controller('exports')
 @UseGuards(JwtAuthGuard, RolesGuard)

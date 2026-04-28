@@ -56,7 +56,7 @@ export class CorrectionsService {
         timeEntryId: dto.timeEntryId,
         workerTimeEntryId: dto.workerTimeEntryId,
         reason: dto.reason,
-        proposedData: dto.proposedData,
+        proposedData: dto.proposedData as any,
       },
     });
 
@@ -105,7 +105,7 @@ export class CorrectionsService {
       throw new ForbiddenException("Vous ne pouvez pas approuver votre propre correction");
     }
 
-    if (![Role.MANAGER, Role.HR, Role.SUPER_ADMIN].includes(requestingUser.role as Role)) {
+    if (!(requestingUser.role === Role.MANAGER || requestingUser.role === Role.HR || requestingUser.role === Role.SUPER_ADMIN)) {
       throw new ForbiddenException('Rôle insuffisant pour approuver');
     }
 

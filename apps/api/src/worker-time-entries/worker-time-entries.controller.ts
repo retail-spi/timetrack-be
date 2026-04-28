@@ -4,7 +4,8 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { WorkerTimeEntriesService, CreateWorkerTimeEntryDto } from './worker-time-entries.service';
-import { Role, User } from '@prisma/client';
+import type { User } from '@prisma/client';
+import { Role } from '@prisma/client';
 
 @Controller('worker-time-entries')
 @UseGuards(JwtAuthGuard, RolesGuard)
