@@ -1,12 +1,14 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "TimeTrack BE",
+    "slug": "timetrack-mobile",
     "version": "1.0.0",
+    "scheme": "timetrack",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "plugins": ["expo-router"],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
