@@ -1,8 +1,12 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { IsEmail, IsString } from 'class-validator';
 import { AuthService } from './auth.service';
 
 class LoginDto {
+  @IsEmail()
   email: string;
+
+  @IsString()
   password: string;
 }
 
