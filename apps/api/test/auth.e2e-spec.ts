@@ -1,6 +1,10 @@
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 
 describe('Auth (e2e)', () => {
