@@ -22,27 +22,27 @@ export default function AddTimeEntry() {
     api.activityTypes.list().then(setActivityTypes).catch(console.error);
   }, []);
 
-  const submit = async () => {
-    if (!form.startTime || !form.endTime || !form.activityTypeId) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires');
-      return;
-    }
+const submit = async () => {
+  if (!form.startTime || !form.endTime || !form.activityTypeId) {
+    Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires');
+    return;
+  }
 
-    try {
-      const today = form.date;
-      await api.timeEntries.create({
-        date: today,
-        startTime: `${today}T${form.startTime}:00.000Z`,
-        endTime: `${today}T${form.endTime}:00.000Z`,
-        breakMinutes: form.breakMinutes,
-        activityTypeId: form.activityTypeId,
-        note: form.note,
-      });
-      Alert.alert('Succès', 'Entrée créée !', [{ text: 'OK', onPress: () => router.back() }]);
-    } catch (err: any) {
-      Alert.alert('Erreur', err.response?.data?.message || 'Impossible de créer');
-    }
-  };
+  try {
+    const today = form.date;
+    await api.timeEntries.create({
+      date: today,
+      startTime: `${today}T${form.startTime}:00`,
+      endTime: `${today}T${form.endTime}:00`,
+      breakMinutes: form.breakMinutes,
+      activityTypeId: form.activityTypeId,
+      note: form.note,
+    });
+    Alert.alert('Succès', 'Entrée créée !', [{ text: 'OK', onPress: () => router.back() }]);
+  } catch (err: any) {
+    Alert.alert('Erreur', err.response?.data?.message || 'Impossible de créer');
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>

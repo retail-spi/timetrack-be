@@ -10,6 +10,8 @@ import { ContractsModule } from './contracts/contracts.module';
 import { ProjectsModule } from './projects/projects.module';
 import { AuditModule } from './audit/audit.module';
 import { ActivityTypesModule } from './activity-types/activity-types.module';
+import { TaskTypesModule } from './task-types/task-types.module';
+import { AlertsModule } from './alerts/alerts.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { ActivityTypesModule } from './activity-types/activity-types.module';
     CorrectionsModule,
     AuditModule,
     ActivityTypesModule,
+    TaskTypesModule,
+    AlertsModule,
   ],
 })
 export class AppModule {}

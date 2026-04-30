@@ -61,8 +61,14 @@ export default function ValidationsPage() {
               <div>
                 <p className="font-medium">{e.user?.firstName} {e.user?.lastName}</p>
                 <p className="text-sm text-gray-500">
-                  {new Date(e.date).toLocaleDateString('fr-BE')} — {e.activityType?.label}
-                </p>
+                 {new Date(e.date).toLocaleDateString('fr-BE')} — {e.activityType?.label}
+              </p>
+                <p className="text-sm text-gray-400">
+                  {new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}
+                  {' → '}
+                  {new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}
+                  {e.breakMinutes > 0 && ` (pause ${e.breakMinutes}min)`}
+               </p>
               </div>
               <div className="flex gap-2">
                 <button onClick={() => approve(e.id)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
