@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const client = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1',
+  baseURL: '/api/proxy',
 });
 
 if (typeof window !== 'undefined') {
@@ -36,11 +36,13 @@ export const webApi = {
   },
   timeEntries: {
     list: (params?: object) => client.get('/time-entries', { params }).then((r) => r.data),
+    create: (data: object) => client.post('/time-entries', data).then((r) => r.data),
     approve: (id: string) => client.patch(`/time-entries/${id}/approve`).then((r) => r.data),
     reject: (id: string) => client.patch(`/time-entries/${id}/reject`).then((r) => r.data),
   },
   workerEntries: {
     list: () => client.get('/worker-time-entries').then((r) => r.data),
+    create: (data: object) => client.post('/worker-time-entries', data).then((r) => r.data),
     approve: (id: string) => client.patch(`/worker-time-entries/${id}/approve`).then((r) => r.data),
   },
   corrections: {
@@ -64,5 +66,11 @@ export const webApi = {
   contracts: {
   list: () => client.get('/contracts').then((r) => r.data),
   create: (data: object) => client.post('/contracts', data).then((r) => r.data),
+  },
+  activityTypes: {
+  list: () => client.get('/activity-types').then((r) => r.data),
+  },
+  taskTypes: {
+  list: () => client.get('/task-types').then((r) => r.data),
   },
 };
