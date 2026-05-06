@@ -61,4 +61,8 @@ export const webApi = {
     workerEntries: (from: string, to: string) =>
       `${process.env.NEXT_PUBLIC_API_URL}/exports/worker-entries/csv?from=${from}&to=${to}`,
   },
+  contracts: {
+  list: () => client.get('/contracts').then((r) => r.data),
+  create: (data: object) => client.post('/contracts', data).then((r) => r.data),
+  },
 };
