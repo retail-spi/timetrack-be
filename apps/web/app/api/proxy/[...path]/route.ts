@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_URL = 'http://localhost:3000/api/v1';
 
-export async function GET(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join('/');
+async function getPath(params: Promise<{ path: string[] }>) {
+  const { path } = await params;
+  return path.join('/');
+}
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const path = await getPath(params);
   const url = `${API_URL}/${path}${req.nextUrl.search}`;
   const headers: any = {};
   const auth = req.headers.get('authorization');
@@ -13,8 +18,8 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
   return NextResponse.json(data, { status: res.status });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join('/');
+export async function POST(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const path = await getPath(params);
   const url = `${API_URL}/${path}`;
   const body = await req.json();
   const headers: any = { 'Content-Type': 'application/json' };
@@ -25,19 +30,18 @@ export async function POST(req: NextRequest, { params }: { params: { path: strin
   return NextResponse.json(data, { status: res.status });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join('/');
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const path = await getPath(params);
   const url = `${API_URL}/${path}`;
   const headers: any = { 'Content-Type': 'application/json' };
   const auth = req.headers.get('authorization');
   if (auth) headers['Authorization'] = auth;
   const res = await fetch(url, { method: 'PATCH', headers });
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  return NextResponse.json({}, { status: res.status });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join('/');
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const path = await getPath(params);
   const url = `${API_URL}/${path}`;
   const body = await req.json();
   const headers: any = { 'Content-Type': 'application/json' };
@@ -48,8 +52,8 @@ export async function PUT(req: NextRequest, { params }: { params: { path: string
   return NextResponse.json(data, { status: res.status });
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join('/');
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const path = await getPath(params);
   const url = `${API_URL}/${path}`;
   const headers: any = {};
   const auth = req.headers.get('authorization');
