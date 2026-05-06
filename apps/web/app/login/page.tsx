@@ -18,7 +18,12 @@ export default function LoginPage() {
       const res = await webApi.auth.login(email, password);
       localStorage.setItem('auth_token', res.accessToken);
       localStorage.setItem('auth_user', JSON.stringify(res.user));
-      router.push('/dashboard');
+      const role = res.user.role;
+      if (role ==='EMPLOYEE') {
+        router.push('/employee/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erreur de connexion');
     } finally {
