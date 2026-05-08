@@ -48,12 +48,12 @@ async function main() {
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
-    update: {},
+    update: { firstName: 'Sarah', lastName: '' },
     create: {
       email: 'admin@example.com',
       passwordHash,
-      firstName: 'Super',
-      lastName: 'Admin',
+      firstName: 'Sarah',
+      lastName: '',
       role: Role.SUPER_ADMIN,
       scope: EmployeeScope.employee_office,
     },
@@ -63,12 +63,12 @@ async function main() {
   // ── Demo Users ────────────────────────────────────────────────────────────
   const manager = await prisma.user.upsert({
     where: { email: 'manager@example.com' },
-    update: {},
+    update: { firstName: 'Admin', lastName: '' },
     create: {
       email: 'manager@example.com',
       passwordHash,
-      firstName: 'Marie',
-      lastName: 'Dupont',
+      firstName: 'Admin',
+      lastName: '',
       role: Role.MANAGER,
       scope: EmployeeScope.employee_office,
     },

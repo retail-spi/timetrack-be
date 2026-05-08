@@ -23,13 +23,13 @@ export class CorrectionsController {
   }
 
   @Patch(':id/approve')
-  @Roles(Role.MANAGER, Role.HR, Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN)
   approve(@Param('id') id: string, @CurrentUser() user: User) {
     return this.service.approve(id, user);
   }
 
   @Patch(':id/reject')
-  @Roles(Role.MANAGER, Role.HR, Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN)
   reject(@Param('id') id: string, @CurrentUser() user: User) {
     return this.service.reject(id, user);
   }

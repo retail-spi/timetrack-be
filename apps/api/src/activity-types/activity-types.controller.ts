@@ -16,7 +16,7 @@ export class ActivityTypesController {
   }
 
   @Post()
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(Role.MANAGER, Role.SUPER_ADMIN)
   create(@Body() dto: { code: string; label: string }) {
     return this.prisma.activityType.create({ data: dto });
   }
