@@ -98,7 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </aside>
 
           <div className="flex-1 flex flex-col min-h-screen">
-            <header className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+            <header className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
               <button
                 onClick={() => setMenuOpen(true)}
                 className="text-gray-500 hover:text-gray-700 p-1 rounded-md hover:bg-gray-100 transition-colors"
