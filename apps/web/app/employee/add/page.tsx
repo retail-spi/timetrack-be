@@ -65,7 +65,7 @@ export default function AddEntryPage() {
   return (
     <div className="min-h-screen bg-[#F5F5F7]">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-4 flex items-center gap-3">
         <button
           onClick={() => router.back()}
           className="text-[#0071E3] hover:text-[#0077ED] flex items-center gap-1 text-[13px] font-medium transition-colors"

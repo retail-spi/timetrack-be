@@ -74,7 +74,7 @@ export default function EmployeeDashboard() {
   return (
     <div className="min-h-screen bg-[#F5F5F7]">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-5 py-4 flex justify-between items-center">
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-5 py-4 flex justify-between items-center">
         <div>
           <h1 className="text-[15px] font-semibold text-gray-900 tracking-tight">TimeTrack</h1>
           <p className="text-[12px] text-gray-400 mt-0.5">Bonjour, {user?.firstName}</p>
