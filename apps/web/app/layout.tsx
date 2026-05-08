@@ -94,13 +94,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {navItems.map(({ href, short, icon: Icon }) => {
                   const isActive = pathname === href;
                   return (
-                    <Link key={href} href={href}>
-                      <div className={`flex flex-col items-center gap-1 px-2 py-1 rounded-xl transition-colors ${
+                    <Link
+                      key={href}
+                      href={href}
+                      className={`flex flex-col items-center gap-1 px-2 py-1 rounded-xl transition-colors ${
                         isActive ? 'text-[#0071E3]' : 'text-gray-400'
-                      }`}>
-                        <Icon size={21} strokeWidth={isActive ? 2.2 : 1.6} />
-                        <span className="text-[9px] font-medium leading-none">{short}</span>
-                      </div>
+                      }`}
+                    >
+                      <Icon size={21} strokeWidth={isActive ? 2.2 : 1.6} />
+                      <span className="text-[9px] font-medium leading-none">{short}</span>
                     </Link>
                   );
                 })}
