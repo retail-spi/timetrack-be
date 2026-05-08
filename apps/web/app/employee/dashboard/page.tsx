@@ -1,16 +1,16 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { webApi } from '@/lib/api';
-import { LogOut, Plus, Clock } from 'lucide-react';
+import { LogOut, Clock } from 'lucide-react';
+import MonthCalendar from '@/components/MonthCalendar';
+import TimeEntryModal from '@/components/TimeEntryModal';
 
 const statusStyle = (status: string) => {
   if (status === 'APPROVED') return 'bg-emerald-50 text-emerald-600';
   if (status === 'REJECTED') return 'bg-red-50 text-red-500';
   return 'bg-amber-50 text-amber-600';
 };
-
 const statusLabel = (status: string) => {
   if (status === 'APPROVED') return 'Approuvé';
   if (status === 'REJECTED') return 'Rejeté';
@@ -19,29 +19,24 @@ const statusLabel = (status: string) => {
 
 export default function EmployeeDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [entries, setEntries] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser]             = useState<any>(null);
+  const [entries, setEntries]       = useState<any[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  const loadEntries = async (parsed: any) => {
+    const data = parsed.scope === 'worker'
+      ? await webApi.workerEntries.list()
+      : await webApi.timeEntries.list();
+    setEntries(data);
+  };
 
   useEffect(() => {
     const u = localStorage.getItem('auth_user');
     if (!u) { router.push('/login'); return; }
     const parsed = JSON.parse(u);
     setUser(parsed);
-
-    const loadEntries = async () => {
-      try {
-        const data = parsed.scope === 'worker'
-          ? await webApi.workerEntries.list()
-          : await webApi.timeEntries.list();
-        setEntries(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadEntries();
+    loadEntries(parsed).catch(console.error).finally(() => setLoading(false));
   }, []);
 
   const logout = () => { localStorage.clear(); router.push('/login'); };
@@ -61,9 +56,9 @@ export default function EmployeeDashboard() {
       }, 0);
 
   const contractHours = 38;
+  const over    = totalHours > contractHours;
   const pending = weekEntries.filter((e) => e.status === 'PENDING').length;
   const approved = weekEntries.filter((e) => e.status === 'APPROVED').length;
-  const over = totalHours > contractHours;
 
   if (loading) return (
     <div className="min-h-screen bg-[#F5F5F7] flex items-center justify-center">
@@ -73,18 +68,13 @@ export default function EmployeeDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F7]">
-      {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-5 py-4 flex justify-between items-center">
         <div>
           <h1 className="text-[15px] font-semibold text-gray-900 tracking-tight">TimeTrack</h1>
           <p className="text-[12px] text-gray-400 mt-0.5">Bonjour, {user?.firstName}</p>
         </div>
-        <button
-          onClick={logout}
-          className="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 transition-colors"
-        >
-          <LogOut size={15} />
-          Déconnexion
+        <button onClick={logout} className="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 transition-colors">
+          <LogOut size={15} /> Déconnexion
         </button>
       </div>
 
@@ -106,26 +96,25 @@ export default function EmployeeDashboard() {
           </div>
           <div className="flex gap-4">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
               <span className="text-[12px] text-gray-500">{pending} en attente</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
               <span className="text-[12px] text-gray-500">{approved} approuvées</span>
             </div>
           </div>
         </div>
 
-        {/* CTA */}
-        <Link href="/employee/add">
-          <div className="bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-2xl p-4 flex items-center justify-center gap-2 font-semibold text-[14px] cursor-pointer transition-colors">
-            <Plus size={18} /> Saisir mes heures
-          </div>
-        </Link>
-
-        {/* Liste */}
+        {/* Calendrier */}
         <div>
-          <h2 className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide mb-3 px-1">Cette semaine</h2>
+          <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide mb-2 px-1">Mon pointage — cliquer une date pour pointer</p>
+          <MonthCalendar entries={entries} onSelectDate={setSelectedDate} />
+        </div>
+
+        {/* Entrées de la semaine */}
+        <div>
+          <h2 className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide mb-3 px-1">Cette semaine</h2>
           {weekEntries.length === 0 && (
             <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
               <Clock size={24} className="text-gray-300 mx-auto mb-2" />
@@ -160,6 +149,18 @@ export default function EmployeeDashboard() {
           </div>
         </div>
       </div>
+
+      {selectedDate && user && (
+        <TimeEntryModal
+          date={selectedDate}
+          user={user}
+          onClose={() => setSelectedDate(null)}
+          onSaved={() => {
+            setSelectedDate(null);
+            loadEntries(user).catch(console.error);
+          }}
+        />
+      )}
     </div>
   );
 }
