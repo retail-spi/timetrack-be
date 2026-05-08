@@ -61,7 +61,7 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
       className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden">
         {/* Header */}
         <div className="sticky top-0 bg-white rounded-t-2xl flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div>
@@ -100,14 +100,14 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
             </>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="min-w-0">
                   <label className={labelClass}>Début</label>
                   <input type="time" value={form.startTime}
                     onChange={(e) => setForm({ ...form, startTime: e.target.value })}
                     className={inputClass} />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label className={labelClass}>Fin</label>
                   <input type="time" value={form.endTime}
                     onChange={(e) => setForm({ ...form, endTime: e.target.value })}
