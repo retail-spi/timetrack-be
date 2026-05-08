@@ -53,27 +53,30 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
 
-  const inputClass = 'w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors';
+  const inputClass = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors';
   const labelClass = 'block text-[12px] font-medium text-gray-500 mb-1.5 uppercase tracking-wide';
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm px-4 pb-4 md:p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden">
-        {/* Header */}
-        <div className="sticky top-0 bg-white rounded-t-2xl flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div>
+      {/* w-[calc(100vw-2rem)] force la largeur à viewport - 2×padding, impossible de déborder */}
+      <div className="w-[calc(100vw-2rem)] max-w-md max-h-[90vh] flex flex-col overflow-hidden rounded-2xl bg-white">
+
+        {/* Header — ne scroll pas */}
+        <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div className="min-w-0 mr-3">
             <h2 className="text-[15px] font-semibold text-gray-900 tracking-tight">Pointer</h2>
-            <p className="text-[12px] text-gray-400 capitalize mt-0.5">{dateLabel}</p>
+            <p className="text-[12px] text-gray-400 capitalize mt-0.5 truncate">{dateLabel}</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+          <button onClick={onClose} className="flex-shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
             <X size={18} />
           </button>
         </div>
 
-        <div className="p-5 space-y-4">
+        {/* Contenu — scroll vertical uniquement */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {user?.scope === 'worker' ? (
             <>
               <div>
@@ -100,16 +103,16 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
             </>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="min-w-0">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
                   <label className={labelClass}>Début</label>
-                  <input type="time" value={form.startTime}
+                  <input type="text" inputMode="numeric" placeholder="08:00" value={form.startTime}
                     onChange={(e) => setForm({ ...form, startTime: e.target.value })}
                     className={inputClass} />
                 </div>
-                <div className="min-w-0">
+                <div>
                   <label className={labelClass}>Fin</label>
-                  <input type="time" value={form.endTime}
+                  <input type="text" inputMode="numeric" placeholder="17:00" value={form.endTime}
                     onChange={(e) => setForm({ ...form, endTime: e.target.value })}
                     className={inputClass} />
                 </div>
