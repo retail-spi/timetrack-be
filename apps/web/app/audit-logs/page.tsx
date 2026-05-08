@@ -1,15 +1,16 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { webApi } from '@/lib/api';
+import { SlidersHorizontal } from 'lucide-react';
 
-const actionColors: Record<string, string> = {
-  CREATE: 'bg-green-100 text-green-700',
-  UPDATE: 'bg-blue-100 text-blue-700',
-  DELETE: 'bg-red-100 text-red-700',
-  APPROVE: 'bg-emerald-100 text-emerald-700',
-  REJECT: 'bg-orange-100 text-orange-700',
-  LOGIN: 'bg-purple-100 text-purple-700',
-  EXPORT: 'bg-gray-100 text-gray-700',
+const actionStyle: Record<string, string> = {
+  CREATE:  'bg-emerald-50 text-emerald-600',
+  UPDATE:  'bg-blue-50 text-blue-600',
+  DELETE:  'bg-red-50 text-red-500',
+  APPROVE: 'bg-teal-50 text-teal-600',
+  REJECT:  'bg-orange-50 text-orange-600',
+  LOGIN:   'bg-purple-50 text-purple-600',
+  EXPORT:  'bg-gray-100 text-gray-500',
 };
 
 export default function AuditLogsPage() {
@@ -25,74 +26,87 @@ export default function AuditLogsPage() {
 
   useEffect(() => { load(); }, []);
 
-  if (loading) return <div className="p-6">Chargement...</div>;
+  const inputClass = 'border border-gray-200 rounded-xl px-3.5 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors bg-white';
+
+  if (loading) return <div className="p-8 text-[13px] text-gray-400">Chargement...</div>;
 
   return (
-    <div className="p-4 md:p-6">
-      <h1 className="text-xl md:text-2xl font-bold mb-4">Audit Logs</h1>
+    <div className="p-6 md:p-8">
+      <h1 className="text-[22px] font-semibold text-gray-900 tracking-tight mb-6">Audit logs</h1>
 
-      <div className="flex flex-col md:flex-row gap-2 mb-4">
-        <select value={filter.action}
+      <div className="flex flex-col md:flex-row gap-2 mb-5">
+        <select
+          value={filter.action}
           onChange={(e) => setFilter({ ...filter, action: e.target.value })}
-          className="border rounded-lg px-3 py-2 text-sm">
+          className={inputClass}
+        >
           <option value="">Toutes les actions</option>
           {['CREATE','UPDATE','DELETE','APPROVE','REJECT','LOGIN','EXPORT'].map((a) => (
             <option key={a} value={a}>{a}</option>
           ))}
         </select>
-        <input placeholder="Filtrer par entité..." value={filter.entity}
+        <input
+          placeholder="Filtrer par entité..."
+          value={filter.entity}
           onChange={(e) => setFilter({ ...filter, entity: e.target.value })}
-          className="border rounded-lg px-3 py-2 text-sm flex-1" />
-        <button onClick={load}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
-          Filtrer
+          className={`${inputClass} flex-1`}
+        />
+        <button
+          onClick={load}
+          className="flex items-center justify-center gap-1.5 bg-[#0071E3] hover:bg-[#0077ED] text-white text-[13px] font-medium px-4 py-2 rounded-xl transition-colors"
+        >
+          <SlidersHorizontal size={14} /> Filtrer
         </button>
       </div>
 
       {/* Mobile */}
-      <div className="space-y-3 md:hidden">
-        {logs.length === 0 && <p className="text-center text-gray-400 py-8">Aucun log</p>}
+      <div className="space-y-2.5 md:hidden">
+        {logs.length === 0 && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
+            <p className="text-[13px] text-gray-400">Aucun log</p>
+          </div>
+        )}
         {logs.map((log) => (
-          <div key={log.id} className="bg-white rounded-xl p-4 shadow-sm">
+          <div key={log.id} className="bg-white rounded-2xl border border-gray-200 p-4">
             <div className="flex justify-between items-start mb-1">
-              <p className="font-medium text-sm">{log.user?.firstName} {log.user?.lastName}</p>
-              <span className={`px-2 py-0.5 rounded text-xs font-medium ${actionColors[log.action] || 'bg-gray-100 text-gray-700'}`}>
+              <p className="text-[13px] font-medium text-gray-900">{log.user?.firstName} {log.user?.lastName}</p>
+              <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${actionStyle[log.action] || 'bg-gray-100 text-gray-500'}`}>
                 {log.action}
               </span>
             </div>
-            <p className="text-sm text-gray-600">{log.entity} — <span className="font-mono text-xs">{log.entityId.slice(0, 8)}...</span></p>
-            <p className="text-xs text-gray-400 mt-1">{new Date(log.createdAt).toLocaleString('fr-BE')}</p>
+            <p className="text-[12px] text-gray-500">{log.entity} · <span className="font-mono">{log.entityId.slice(0, 8)}…</span></p>
+            <p className="text-[11px] text-gray-400 mt-1">{new Date(log.createdAt).toLocaleString('fr-BE')}</p>
           </div>
         ))}
       </div>
 
       {/* Desktop */}
-      <div className="hidden md:block bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="hidden md:block bg-white rounded-2xl border border-gray-200 overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Date</th>
-              <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Utilisateur</th>
-              <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Action</th>
-              <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Entité</th>
-              <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">ID</th>
+          <thead>
+            <tr className="border-b border-gray-100">
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Date</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Utilisateur</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Action</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Entité</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">ID</th>
             </tr>
           </thead>
           <tbody>
             {logs.length === 0 && (
-              <tr><td colSpan={5} className="text-center py-8 text-gray-400">Aucun log</td></tr>
+              <tr><td colSpan={5} className="text-center py-10 text-[13px] text-gray-400">Aucun log</td></tr>
             )}
             {logs.map((log) => (
-              <tr key={log.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm text-gray-500">{new Date(log.createdAt).toLocaleString('fr-BE')}</td>
-                <td className="px-4 py-3 text-sm font-medium">{log.user?.firstName} {log.user?.lastName}</td>
+              <tr key={log.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors">
+                <td className="px-4 py-3 text-[12px] text-gray-400">{new Date(log.createdAt).toLocaleString('fr-BE')}</td>
+                <td className="px-4 py-3 text-[13px] font-medium text-gray-900">{log.user?.firstName} {log.user?.lastName}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${actionColors[log.action] || 'bg-gray-100 text-gray-700'}`}>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${actionStyle[log.action] || 'bg-gray-100 text-gray-500'}`}>
                     {log.action}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600">{log.entity}</td>
-                <td className="px-4 py-3 text-xs text-gray-400 font-mono">{log.entityId}</td>
+                <td className="px-4 py-3 text-[13px] text-gray-500">{log.entity}</td>
+                <td className="px-4 py-3 text-[11px] text-gray-400 font-mono">{log.entityId}</td>
               </tr>
             ))}
           </tbody>

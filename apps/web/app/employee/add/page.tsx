@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { webApi } from '@/lib/api';
+import { ChevronLeft } from 'lucide-react';
 
 export default function AddEntryPage() {
   const router = useRouter();
@@ -24,7 +25,6 @@ export default function AddEntryPage() {
     const u = localStorage.getItem('auth_user');
     if (!u) { router.push('/login'); return; }
     setUser(JSON.parse(u));
-
     webApi.activityTypes.list().then(setActivityTypes).catch(console.error);
     webApi.taskTypes.list().then(setTaskTypes).catch(console.error);
   }, []);
@@ -33,10 +33,9 @@ export default function AddEntryPage() {
     setLoading(true);
     try {
       if (user?.scope === 'worker') {
-        const hours = parseFloat(form.hours);
         await webApi.workerEntries.create({
           date: form.date,
-          hours,
+          hours: parseFloat(form.hours),
           taskTypeId: form.taskTypeId,
           note: form.note,
         });
@@ -60,41 +59,50 @@ export default function AddEntryPage() {
 
   if (!user) return null;
 
+  const inputClass = 'w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors';
+  const labelClass = 'block text-[12px] font-medium text-gray-500 mb-1.5 uppercase tracking-wide';
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-blue-900 text-white px-4 py-4 flex items-center gap-3">
-        <button onClick={() => router.back()} className="text-blue-300 hover:text-white">←</button>
-        <h1 className="font-bold text-lg">Saisir mes heures</h1>
+    <div className="min-h-screen bg-[#F5F5F7]">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-4 py-4 flex items-center gap-3">
+        <button
+          onClick={() => router.back()}
+          className="text-[#0071E3] hover:text-[#0077ED] flex items-center gap-1 text-[13px] font-medium transition-colors"
+        >
+          <ChevronLeft size={18} /> Retour
+        </button>
+        <h1 className="text-[15px] font-semibold text-gray-900">Saisir mes heures</h1>
       </div>
 
-      <div className="max-w-2xl mx-auto p-4 space-y-4">
-        <div className="bg-white rounded-xl p-5 shadow-sm space-y-4">
+      <div className="max-w-lg mx-auto p-5">
+        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-5">
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+            <label className={labelClass}>Date</label>
             <input type="date" value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2" />
+              className={inputClass} />
           </div>
 
           {user.scope === 'worker' ? (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Heures (ex: 7.5)</label>
-                <input type="number" step="0.5" value={form.hours}
+                <label className={labelClass}>Heures (ex : 7.5)</label>
+                <input type="number" step="0.5" min="0" max="24" value={form.hours}
                   onChange={(e) => setForm({ ...form, hours: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2" />
+                  className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Type de tâche</label>
+                <label className={labelClass}>Type de tâche</label>
                 <div className="space-y-2">
                   {taskTypes.map((tt) => (
                     <button key={tt.id}
                       onClick={() => setForm({ ...form, taskTypeId: tt.id })}
-                      className={`w-full text-left px-4 py-2 rounded-lg border transition ${
+                      className={`w-full text-left px-4 py-2.5 rounded-xl border text-[13px] transition-colors ${
                         form.taskTypeId === tt.id
-                          ? 'border-blue-600 bg-blue-50 text-blue-700 font-medium'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-blue-400 bg-blue-50 text-blue-700 font-medium'
+                          : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                       }`}>
                       {tt.label}
                     </button>
@@ -106,34 +114,34 @@ export default function AddEntryPage() {
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Début</label>
+                  <label className={labelClass}>Début</label>
                   <input type="time" value={form.startTime}
                     onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2" />
+                    className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Fin</label>
+                  <label className={labelClass}>Fin</label>
                   <input type="time" value={form.endTime}
                     onChange={(e) => setForm({ ...form, endTime: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2" />
+                    className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pause (minutes)</label>
+                <label className={labelClass}>Pause (minutes)</label>
                 <input type="number" value={form.breakMinutes}
                   onChange={(e) => setForm({ ...form, breakMinutes: parseInt(e.target.value) || 0 })}
-                  className="w-full border rounded-lg px-3 py-2" />
+                  className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Type d'activité</label>
+                <label className={labelClass}>Type d'activité</label>
                 <div className="space-y-2">
                   {activityTypes.map((at) => (
                     <button key={at.id}
                       onClick={() => setForm({ ...form, activityTypeId: at.id })}
-                      className={`w-full text-left px-4 py-2 rounded-lg border transition ${
+                      className={`w-full text-left px-4 py-2.5 rounded-xl border text-[13px] transition-colors ${
                         form.activityTypeId === at.id
-                          ? 'border-blue-600 bg-blue-50 text-blue-700 font-medium'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-blue-400 bg-blue-50 text-blue-700 font-medium'
+                          : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                       }`}>
                       {at.label}
                     </button>
@@ -144,14 +152,17 @@ export default function AddEntryPage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Note (facultatif)</label>
+            <label className={labelClass}>Note (facultatif)</label>
             <textarea value={form.note}
               onChange={(e) => setForm({ ...form, note: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 resize-none" rows={3} />
+              className={`${inputClass} resize-none`} rows={3} />
           </div>
 
-          <button onClick={submit} disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition">
+          <button
+            onClick={submit}
+            disabled={loading}
+            className="w-full bg-[#0071E3] hover:bg-[#0077ED] disabled:opacity-50 text-white font-semibold text-[14px] py-3 rounded-xl transition-colors"
+          >
             {loading ? 'Enregistrement...' : 'Enregistrer'}
           </button>
         </div>
