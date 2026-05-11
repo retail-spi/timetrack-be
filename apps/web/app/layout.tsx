@@ -72,33 +72,65 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </aside>
 
+          {/* Header mobile — deux bulles flottantes */}
+          <div className="md:hidden">
+            <div
+              className="fixed top-5 left-4 z-30 px-4 py-2 rounded-2xl"
+              style={{
+                background: 'rgba(255,255,255,0.72)',
+                backdropFilter: 'blur(32px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+                border: '1px solid rgba(255,255,255,0.5)',
+              }}
+            >
+              <span className="font-semibold text-[15px] text-gray-900 tracking-tight">TimeTrack</span>
+            </div>
+            <button
+              onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
+              className="fixed top-5 right-4 z-30 p-2.5 rounded-2xl transition-colors"
+              style={{
+                background: 'rgba(255,255,255,0.72)',
+                backdropFilter: 'blur(32px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+                border: '1px solid rgba(255,255,255,0.5)',
+              }}
+            >
+              <LogOut size={18} className="text-gray-500" />
+            </button>
+          </div>
+
           {/* Contenu principal */}
           <div className="flex-1 flex flex-col min-h-screen md:ml-60">
-            <main className="flex-1 overflow-auto overflow-x-hidden pb-24 md:pb-0">
+            <main className="flex-1 overflow-auto overflow-x-hidden pt-20 md:pt-0 pb-28 md:pb-0">
               {children}
             </main>
           </div>
 
-          {/* Bottom nav mobile — liquid glass */}
-          <nav className="md:hidden fixed bottom-0 inset-x-0 z-30">
+          {/* Bottom nav mobile — floating liquid glass iOS 26 */}
+          <nav className="md:hidden fixed bottom-5 inset-x-4 z-30">
             <div
-              className="border-t border-gray-200/50"
+              className="rounded-3xl overflow-hidden"
               style={{
-                background: 'rgba(255,255,255,0.75)',
-                backdropFilter: 'blur(24px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-                boxShadow: '0 -1px 0 rgba(0,0,0,0.04), 0 -8px 24px rgba(0,0,0,0.06)',
+                background: 'rgba(255,255,255,0.72)',
+                backdropFilter: 'blur(32px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+                border: '1px solid rgba(255,255,255,0.5)',
               }}
             >
-              <div className="flex items-center justify-around px-1 pt-2 pb-5">
+              <div className="flex items-center justify-around px-2 py-2">
                 {navItems.map(({ href, short, icon: Icon }) => {
                   const isActive = pathname === href;
                   return (
                     <Link
                       key={href}
                       href={href}
-                      className={`flex flex-col items-center gap-1 px-2 py-1 rounded-xl transition-colors ${
-                        isActive ? 'text-[#0071E3]' : 'text-gray-400'
+                      className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-all ${
+                        isActive
+                          ? 'text-[#0071E3] bg-blue-50/80'
+                          : 'text-gray-400'
                       }`}
                     >
                       <Icon size={21} strokeWidth={isActive ? 2.2 : 1.6} />
