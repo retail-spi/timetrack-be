@@ -144,11 +144,11 @@ export default function MonthCalendar({ entries, onSelectDate }: Props) {
               `}
             >
               {d}
-              {isHoliday && !isToday && (
-                <span className="absolute bottom-0.5 w-1 h-1 rounded-full bg-red-300" />
-              )}
-              {hasEntry && (
-                <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${isToday ? 'bg-white/70' : 'bg-[#0071E3]'}`} />
+              {(isHoliday && !isToday || hasEntry) && (
+                <span className="absolute bottom-0.5 flex items-center gap-0.5">
+                  {isHoliday && !isToday && <span className="w-1 h-1 rounded-full bg-red-300" />}
+                  {hasEntry && <span className={`w-1 h-1 rounded-full ${isToday ? 'bg-white/70' : 'bg-[#0071E3]'}`} />}
+                </span>
               )}
             </button>
           );
