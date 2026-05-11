@@ -22,31 +22,32 @@ export default function ExportsPage() {
   };
 
   const ready = from && to;
+  const inputClass = 'w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors';
 
   return (
     <div className="p-6 md:p-8 max-w-lg">
-      <h1 className="text-[22px] font-semibold text-gray-900 tracking-tight mb-6">Exports CSV</h1>
+      <h1 className="text-[22px] font-semibold text-gray-900 dark:text-white tracking-tight mb-6">Exports CSV</h1>
 
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+      <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-5">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-[12px] font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Du</label>
+            <label className="block text-[12px] font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Du</label>
             <input
               type="text"
               placeholder="2024-01-01"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors"
+              className={inputClass}
             />
           </div>
           <div>
-            <label className="block text-[12px] font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Au</label>
+            <label className="block text-[12px] font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Au</label>
             <input
               type="text"
               placeholder="2024-12-31"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors"
+              className={inputClass}
             />
           </div>
         </div>
@@ -62,7 +63,7 @@ export default function ExportsPage() {
           <button
             onClick={() => download('worker-entries')}
             disabled={!ready}
-            className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 disabled:opacity-40 text-white text-[13px] font-medium py-3 rounded-xl transition-colors"
+            className="w-full flex items-center justify-center gap-2 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 disabled:opacity-40 text-white text-[13px] font-medium py-3 rounded-xl transition-colors"
           >
             <Download size={15} /> Ouvriers
           </button>

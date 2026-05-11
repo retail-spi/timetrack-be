@@ -18,22 +18,22 @@ export default function ValidationsPage() {
 
   useEffect(() => { load(); }, []);
 
-  if (loading) return <div className="p-8 text-[13px] text-gray-400">Chargement...</div>;
+  if (loading) return <div className="p-8 text-[13px] text-gray-400 dark:text-gray-500">Chargement...</div>;
 
   return (
     <div className="p-6 md:p-8 max-w-3xl">
-      <h1 className="text-[22px] font-semibold text-gray-900 tracking-tight mb-6">Validations</h1>
+      <h1 className="text-[22px] font-semibold text-gray-900 dark:text-white tracking-tight mb-6">Validations</h1>
 
       {/* Segmented control iOS-style */}
-      <div className="flex bg-gray-100 rounded-xl p-1 mb-6 max-w-xs">
+      <div className="flex bg-gray-100 dark:bg-[#2a2a2a] rounded-xl p-1 mb-6 max-w-xs">
         {([['entries', 'Entrées', entries.length], ['corrections', 'Corrections', corrections.length]] as const).map(([key, label, count]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
             className={`flex-1 py-1.5 rounded-lg text-[13px] font-medium transition-all ${
               tab === key
-                ? 'bg-white shadow-sm text-gray-900'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white dark:bg-[#3a3a3a] shadow-sm text-gray-900 dark:text-white'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
             {label}{count > 0 ? ` (${count})` : ''}
@@ -44,19 +44,19 @@ export default function ValidationsPage() {
       {tab === 'entries' && (
         <div className="space-y-3">
           {entries.length === 0 && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
-              <p className="text-[13px] text-gray-400">Aucune entrée en attente</p>
+            <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-10 text-center">
+              <p className="text-[13px] text-gray-400 dark:text-gray-500">Aucune entrée en attente</p>
             </div>
           )}
           {entries.map((e) => (
-            <div key={e.id} className="bg-white rounded-2xl border border-gray-200 p-4">
+            <div key={e.id} className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
               <div className="mb-3">
-                <p className="text-[14px] font-semibold text-gray-900">{e.user?.firstName} {e.user?.lastName}</p>
-                <p className="text-[13px] text-gray-500 mt-0.5">
+                <p className="text-[14px] font-semibold text-gray-900 dark:text-white">{e.user?.firstName} {e.user?.lastName}</p>
+                <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">
                   {new Date(e.date).toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })}
                   {e.activityType && ` — ${e.activityType.label}`}
                 </p>
-                <p className="text-[12px] text-gray-400 mt-0.5">
+                <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-0.5">
                   {new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}
                   {' → '}
                   {new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}
@@ -85,15 +85,15 @@ export default function ValidationsPage() {
       {tab === 'corrections' && (
         <div className="space-y-3">
           {corrections.length === 0 && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
-              <p className="text-[13px] text-gray-400">Aucune correction en attente</p>
+            <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-10 text-center">
+              <p className="text-[13px] text-gray-400 dark:text-gray-500">Aucune correction en attente</p>
             </div>
           )}
           {corrections.map((c) => (
-            <div key={c.id} className="bg-white rounded-2xl border border-gray-200 p-4">
-              <p className="text-[14px] font-semibold text-gray-900 mb-0.5">{c.submittedBy?.firstName} {c.submittedBy?.lastName}</p>
-              <p className="text-[13px] text-gray-500 mb-3">{c.reason}</p>
-              <pre className="text-[11px] bg-gray-50 border border-gray-100 rounded-xl p-3 mb-3 overflow-auto text-gray-600">
+            <div key={c.id} className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
+              <p className="text-[14px] font-semibold text-gray-900 dark:text-white mb-0.5">{c.submittedBy?.firstName} {c.submittedBy?.lastName}</p>
+              <p className="text-[13px] text-gray-500 dark:text-gray-400 mb-3">{c.reason}</p>
+              <pre className="text-[11px] bg-gray-50 dark:bg-[#2a2a2a] border border-gray-100 dark:border-gray-700 rounded-xl p-3 mb-3 overflow-auto text-gray-600 dark:text-gray-300">
                 {JSON.stringify(c.proposedData, null, 2)}
               </pre>
               <div className="flex gap-2">

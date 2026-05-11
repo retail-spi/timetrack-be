@@ -43,19 +43,19 @@ function belgianHolidays(year: number): Set<string> {
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const easter = easterDate(year);
   const fixed = [
-    `${year}-01-01`, // Nouvel An
-    `${year}-05-01`, // Fête du Travail
-    `${year}-07-21`, // Fête Nationale
-    `${year}-08-15`, // Assomption
-    `${year}-11-01`, // Toussaint
-    `${year}-11-11`, // Armistice
-    `${year}-12-25`, // Noël
+    `${year}-01-01`,
+    `${year}-05-01`,
+    `${year}-07-21`,
+    `${year}-08-15`,
+    `${year}-11-01`,
+    `${year}-11-11`,
+    `${year}-12-25`,
   ];
   const mobile = [
-    fmt(addDays(easter,  1)),  // Lundi de Pâques
-    fmt(addDays(easter, 39)),  // Ascension
-    fmt(addDays(easter, 49)),  // Pentecôte
-    fmt(addDays(easter, 50)),  // Lundi de Pentecôte
+    fmt(addDays(easter,  1)),
+    fmt(addDays(easter, 39)),
+    fmt(addDays(easter, 49)),
+    fmt(addDays(easter, 50)),
   ];
   return new Set([...fixed, ...mobile]);
 }
@@ -93,25 +93,25 @@ export default function MonthCalendar({ entries, onSelectDate }: Props) {
     `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-5">
+    <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-4 md:p-5">
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={prev}
           disabled={year === MIN_YEAR && month === MIN_MONTH}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
         >
-          <ChevronLeft size={16} className="text-gray-500" />
+          <ChevronLeft size={16} className="text-gray-500 dark:text-gray-400" />
         </button>
-        <span className="text-[14px] font-semibold text-gray-900">{MONTHS[month]} {year}</span>
-        <button onClick={next} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-          <ChevronRight size={16} className="text-gray-500" />
+        <span className="text-[14px] font-semibold text-gray-900 dark:text-white">{MONTHS[month]} {year}</span>
+        <button onClick={next} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+          <ChevronRight size={16} className="text-gray-500 dark:text-gray-400" />
         </button>
       </div>
 
       {/* En-têtes jours — Sam/Dim en rouge discret */}
       <div className="grid grid-cols-7 mb-1">
         {DAYS.map((d, i) => (
-          <div key={d} className={`text-center text-[11px] font-semibold py-1 ${i >= 5 ? 'text-red-300' : 'text-gray-400'}`}>
+          <div key={d} className={`text-center text-[11px] font-semibold py-1 ${i >= 5 ? 'text-red-300 dark:text-red-400/60' : 'text-gray-400 dark:text-gray-500'}`}>
             {d}
           </div>
         ))}
@@ -121,7 +121,7 @@ export default function MonthCalendar({ entries, onSelectDate }: Props) {
         {cells.map((d, i) => {
           if (!d) return <div key={i} />;
           const ds       = dateStr(d);
-          const dow      = new Date(year, month, d).getDay(); // 0=dim, 6=sam
+          const dow      = new Date(year, month, d).getDay();
           const isWeekend  = dow === 0 || dow === 6;
           const isHoliday  = holidays.has(ds);
           const isOff      = isWeekend || isHoliday;
@@ -137,17 +137,17 @@ export default function MonthCalendar({ entries, onSelectDate }: Props) {
               title={isHoliday ? 'Jour férié' : undefined}
               className={`relative flex flex-col items-center justify-center h-9 rounded-xl text-[13px] font-medium transition-colors
                 ${isToday   ? 'bg-[#0071E3] text-white' : ''}
-                ${!isToday && isOff && !isFuture  ? 'text-red-300 hover:bg-red-50 cursor-pointer' : ''}
-                ${!isToday && !isOff && !isFuture ? 'text-gray-700 hover:bg-gray-100 cursor-pointer' : ''}
-                ${isFuture && isOff  ? 'text-red-200 cursor-not-allowed' : ''}
-                ${isFuture && !isOff ? 'text-gray-300 cursor-not-allowed' : ''}
+                ${!isToday && isOff && !isFuture  ? 'text-red-300 dark:text-red-400/70 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer' : ''}
+                ${!isToday && !isOff && !isFuture ? 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 cursor-pointer' : ''}
+                ${isFuture && isOff  ? 'text-red-200 dark:text-red-400/30 cursor-not-allowed' : ''}
+                ${isFuture && !isOff ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed' : ''}
               `}
             >
               {d}
               {(isHoliday && !isToday || hasEntry) && (
                 <span className="absolute bottom-0.5 flex items-center gap-0.5">
-                  {isHoliday && !isToday && <span className="w-1 h-1 rounded-full bg-red-300" />}
-                  {hasEntry && <span className={`w-1 h-1 rounded-full ${isToday ? 'bg-white/70' : 'bg-[#0071E3]'}`} />}
+                  {isHoliday && !isToday && <span className="w-1 h-1 rounded-full bg-red-300 dark:bg-red-400/70" />}
+                  {hasEntry && <span className={`w-1 h-1 rounded-full ${isToday ? 'bg-white/70' : 'bg-[#0071E3] dark:bg-blue-400'}`} />}
                 </span>
               )}
             </button>
