@@ -8,12 +8,13 @@ async function main() {
 
   // ── Activity Types ────────────────────────────────────────────────────────
   const activityTypes = [
-    { code: 'CLIENT_MEETING', label: 'Réunion client' },
-    { code: 'TRAVEL',         label: 'Déplacement' },
-    { code: 'ADMIN_WORK',     label: 'Travail administratif' },
-    { code: 'OFFICE',         label: 'Travail bureau' },
-    { code: 'EVENT',          label: 'Événement' },
-    { code: 'OTHER',          label: 'Autre' },
+    { code: 'OFFICE',       label: 'Bureau' },
+    { code: 'TRAVEL',       label: 'Déplacement' },
+    { code: 'EVENT',        label: 'Évènement' },
+    { code: 'LEAVE',        label: 'Congé' },
+    { code: 'SICK',         label: 'Maladie' },
+    { code: 'ABSENCE',      label: 'Absence' },
+    { code: 'HOLIDAY_COMP', label: 'Récupération jour férié' },
   ];
 
   for (const at of activityTypes) {
