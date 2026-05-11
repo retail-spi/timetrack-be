@@ -36,23 +36,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <div className="flex min-h-screen bg-[#F5F5F7]">
+        <div className="flex min-h-screen" style={{ background: 'linear-gradient(135deg, #e8eaf6 0%, #fce4ec 40%, #e3f2fd 100%)' }}>
 
-          {/* Sidebar desktop uniquement */}
-          <aside className="hidden md:flex flex-col fixed inset-y-0 left-0 z-30 w-60 bg-white border-r border-gray-200">
-            <div className="px-5 py-5 border-b border-gray-100">
+          {/* Sidebar desktop — flottante macOS */}
+          <aside
+            className="hidden md:flex flex-col fixed top-4 bottom-4 left-4 z-30 w-56 rounded-2xl overflow-hidden"
+            style={{
+              background: 'rgba(255,255,255,0.45)',
+              backdropFilter: 'blur(32px) saturate(200%)',
+              WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+              border: '1px solid rgba(255,255,255,0.5)',
+            }}
+          >
+            <div className="px-5 py-5">
               <h1 className="font-semibold text-[15px] text-gray-900 tracking-tight">TimeTrack</h1>
               <p className="text-[12px] text-gray-400 mt-0.5">Administration</p>
             </div>
-            <nav className="flex-1 px-3 py-3 space-y-0.5">
+            <nav className="flex-1 px-3 py-1 space-y-0.5">
               {navItems.map(({ href, label, icon: Icon }) => {
                 const isActive = pathname === href;
                 return (
                   <Link key={href} href={href}>
-                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors cursor-pointer ${
+                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-colors cursor-pointer ${
                       isActive
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        ? 'bg-blue-50/80 text-blue-600'
+                        : 'text-gray-600 hover:bg-white/60 hover:text-gray-900'
                     }`}>
                       <Icon size={16} className={isActive ? 'text-blue-500' : 'text-gray-400'} />
                       {label}
@@ -61,10 +70,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 );
               })}
             </nav>
-            <div className="px-3 py-3 border-t border-gray-100">
+            <div className="px-3 py-3">
               <button
                 onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 font-medium transition-colors"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-gray-500 hover:text-gray-700 rounded-xl hover:bg-white/60 font-medium transition-colors"
               >
                 <LogOut size={16} className="text-gray-400" />
                 Déconnexion
@@ -77,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div
               className="fixed top-5 left-4 z-30 px-4 py-2 rounded-2xl"
               style={{
-                background: 'rgba(255,255,255,0.72)',
+                background: 'rgba(255,255,255,0.45)',
                 backdropFilter: 'blur(32px) saturate(200%)',
                 WebkitBackdropFilter: 'blur(32px) saturate(200%)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
@@ -90,7 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
               className="fixed top-5 right-4 z-30 p-2.5 rounded-2xl transition-colors"
               style={{
-                background: 'rgba(255,255,255,0.72)',
+                background: 'rgba(255,255,255,0.45)',
                 backdropFilter: 'blur(32px) saturate(200%)',
                 WebkitBackdropFilter: 'blur(32px) saturate(200%)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
@@ -102,7 +111,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Contenu principal */}
-          <div className="flex-1 flex flex-col min-h-screen md:ml-60">
+          <div className="flex-1 flex flex-col min-h-screen md:ml-[248px]">
             <main className="flex-1 overflow-auto overflow-x-hidden pt-20 md:pt-0 pb-28 md:pb-0">
               {children}
             </main>
@@ -113,7 +122,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div
               className="rounded-3xl overflow-hidden"
               style={{
-                background: 'rgba(255,255,255,0.72)',
+                background: 'rgba(255,255,255,0.45)',
                 backdropFilter: 'blur(32px) saturate(200%)',
                 WebkitBackdropFilter: 'blur(32px) saturate(200%)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
