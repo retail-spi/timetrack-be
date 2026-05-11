@@ -1,11 +1,15 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   LayoutDashboard, Users, FileText, FolderOpen,
   CheckSquare, Download, Search, LogOut,
+  Sun, Moon, Monitor,
 } from 'lucide-react';
 import './globals.css';
+
+type Theme = 'auto' | 'light' | 'dark';
 
 const navItems = [
   { href: '/dashboard',   label: 'Dashboard',    short: 'Accueil',  icon: LayoutDashboard },
@@ -17,41 +21,98 @@ const navItems = [
   { href: '/audit-logs',  label: 'Audit logs',   short: 'Audit',    icon: Search },
 ];
 
+const ThemeIcon = ({ theme }: { theme: Theme }) => {
+  if (theme === 'light') return <Sun size={15} />;
+  if (theme === 'dark')  return <Moon size={15} />;
+  return <Monitor size={15} />;
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname   = usePathname();
   const isLogin    = pathname === '/login';
   const isEmployee = pathname.startsWith('/employee');
 
+  const [theme, setTheme]         = useState<Theme>('auto');
+  const [isDark, setIsDark]       = useState(false);
+  const [mounted, setMounted]     = useState(false);
+
+  useEffect(() => {
+    const saved = (localStorage.getItem('theme') as Theme) || 'auto';
+    setTheme(saved);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const resolve = (): boolean =>
+      theme === 'auto'
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+        : theme === 'dark';
+
+    const apply = () => {
+      const dark = resolve();
+      setIsDark(dark);
+      document.documentElement.classList.toggle('dark', dark);
+    };
+
+    apply();
+    localStorage.setItem('theme', theme);
+
+    if (theme === 'auto') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      mq.addEventListener('change', apply);
+      return () => mq.removeEventListener('change', apply);
+    }
+  }, [theme, mounted]);
+
+  const cycleTheme = () =>
+    setTheme(t => t === 'auto' ? 'light' : t === 'light' ? 'dark' : 'auto');
+
+  const glassStyle = {
+    background: isDark ? 'rgba(35,35,35,0.6)' : 'rgba(255,255,255,0.45)',
+    backdropFilter: 'blur(32px) saturate(200%)',
+    WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+    boxShadow: isDark
+      ? '0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
+      : '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+    border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.5)',
+  };
+
+  const bgGradient = isDark
+    ? 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #111111 100%)'
+    : 'linear-gradient(135deg, #e8eaf6 0%, #fce4ec 40%, #e3f2fd 100%)';
+
   if (isLogin || isEmployee) {
     return (
-      <html lang="fr">
+      <html lang="fr" suppressHydrationWarning>
         <body>{children}</body>
       </html>
     );
   }
 
+  const textPrimary   = isDark ? 'text-white'      : 'text-gray-900';
+  const textSecondary = isDark ? 'text-gray-300'   : 'text-gray-500';
+  const textMuted     = isDark ? 'text-gray-400'   : 'text-gray-400';
+  const hoverBg       = isDark ? 'hover:bg-white/10' : 'hover:bg-white/60';
+  const activeBg      = isDark ? 'bg-white/15 text-white' : 'bg-blue-50/80 text-blue-600';
+  const activeIcon    = isDark ? 'text-blue-300'   : 'text-blue-500';
+
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <div className="flex min-h-screen" style={{ background: 'linear-gradient(135deg, #e8eaf6 0%, #fce4ec 40%, #e3f2fd 100%)' }}>
+        <div className={`flex min-h-screen transition-all duration-300${isDark ? ' dark' : ''}`} style={{ background: bgGradient }}>
 
           {/* Sidebar desktop — flottante macOS */}
           <aside
-            className="hidden md:flex flex-col fixed top-4 bottom-4 left-4 z-30 w-56 rounded-2xl overflow-hidden"
-            style={{
-              background: 'rgba(255,255,255,0.45)',
-              backdropFilter: 'blur(32px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(32px) saturate(200%)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
-              border: '1px solid rgba(255,255,255,0.5)',
-            }}
+            className="hidden md:flex flex-col fixed top-4 bottom-4 left-4 z-30 w-56 rounded-2xl overflow-hidden transition-all duration-300"
+            style={glassStyle}
           >
             <div className="px-5 py-5">
-              <h1 className="font-semibold text-[15px] text-gray-900 tracking-tight">TimeTrack</h1>
-              <p className="text-[12px] text-gray-400 mt-0.5">Administration</p>
+              <h1 className={`font-semibold text-[15px] tracking-tight ${textPrimary}`}>TimeTrack</h1>
+              <p className={`text-[12px] mt-0.5 ${textMuted}`}>Administration</p>
             </div>
             <nav className="flex-1 px-3 py-1 space-y-0.5">
               {navItems.map(({ href, label, icon: Icon }) => {
@@ -59,55 +120,57 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 return (
                   <Link key={href} href={href}>
                     <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-colors cursor-pointer ${
-                      isActive
-                        ? 'bg-blue-50/80 text-blue-600'
-                        : 'text-gray-600 hover:bg-white/60 hover:text-gray-900'
+                      isActive ? activeBg : `${textSecondary} ${hoverBg} hover:${textPrimary}`
                     }`}>
-                      <Icon size={16} className={isActive ? 'text-blue-500' : 'text-gray-400'} />
+                      <Icon size={16} className={isActive ? activeIcon : textMuted} />
                       {label}
                     </div>
                   </Link>
                 );
               })}
             </nav>
-            <div className="px-3 py-3">
+            <div className="px-3 py-3 space-y-1">
+              <button
+                onClick={cycleTheme}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 text-[13px] rounded-xl ${hoverBg} font-medium transition-colors ${textSecondary}`}
+              >
+                <ThemeIcon theme={theme} />
+                {theme === 'auto' ? 'Auto' : theme === 'light' ? 'Clair' : 'Sombre'}
+              </button>
               <button
                 onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-gray-500 hover:text-gray-700 rounded-xl hover:bg-white/60 font-medium transition-colors"
+                className={`w-full flex items-center gap-2.5 px-3 py-2 text-[13px] rounded-xl ${hoverBg} font-medium transition-colors ${textSecondary}`}
               >
-                <LogOut size={16} className="text-gray-400" />
+                <LogOut size={16} className={textMuted} />
                 Déconnexion
               </button>
             </div>
           </aside>
 
-          {/* Header mobile — deux bulles flottantes */}
+          {/* Header mobile — bulles flottantes */}
           <div className="md:hidden">
             <div
-              className="fixed top-5 left-4 z-30 px-4 py-2 rounded-2xl"
-              style={{
-                background: 'rgba(255,255,255,0.45)',
-                backdropFilter: 'blur(32px) saturate(200%)',
-                WebkitBackdropFilter: 'blur(32px) saturate(200%)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
-                border: '1px solid rgba(255,255,255,0.5)',
-              }}
+              className="fixed top-5 left-4 z-30 px-4 py-2 rounded-2xl transition-all duration-300"
+              style={glassStyle}
             >
-              <span className="font-semibold text-[15px] text-gray-900 tracking-tight">TimeTrack</span>
+              <span className={`font-semibold text-[15px] tracking-tight ${textPrimary}`}>TimeTrack</span>
             </div>
-            <button
-              onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
-              className="fixed top-5 right-4 z-30 p-2.5 rounded-2xl transition-colors"
-              style={{
-                background: 'rgba(255,255,255,0.45)',
-                backdropFilter: 'blur(32px) saturate(200%)',
-                WebkitBackdropFilter: 'blur(32px) saturate(200%)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
-                border: '1px solid rgba(255,255,255,0.5)',
-              }}
-            >
-              <LogOut size={18} className="text-gray-500" />
-            </button>
+            <div className="fixed top-5 right-4 z-30 flex items-center gap-2">
+              <button
+                onClick={cycleTheme}
+                className={`p-2.5 rounded-2xl transition-all duration-300 ${textSecondary}`}
+                style={glassStyle}
+              >
+                <ThemeIcon theme={theme} />
+              </button>
+              <button
+                onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
+                className={`p-2.5 rounded-2xl transition-all duration-300 ${textSecondary}`}
+                style={glassStyle}
+              >
+                <LogOut size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Contenu principal */}
@@ -117,17 +180,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
           </div>
 
-          {/* Bottom nav mobile — floating liquid glass iOS 26 */}
+          {/* Bottom nav mobile — floating liquid glass */}
           <nav className="md:hidden fixed bottom-5 inset-x-4 z-30">
             <div
-              className="rounded-3xl overflow-hidden"
-              style={{
-                background: 'rgba(255,255,255,0.45)',
-                backdropFilter: 'blur(32px) saturate(200%)',
-                WebkitBackdropFilter: 'blur(32px) saturate(200%)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
-                border: '1px solid rgba(255,255,255,0.5)',
-              }}
+              className="rounded-3xl overflow-hidden transition-all duration-300"
+              style={glassStyle}
             >
               <div className="flex items-center justify-around px-2 py-2">
                 {navItems.map(({ href, short, icon: Icon }) => {
@@ -138,8 +195,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       href={href}
                       className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-all ${
                         isActive
-                          ? 'text-[#0071E3] bg-blue-50/80'
-                          : 'text-gray-400'
+                          ? isDark ? 'text-blue-300 bg-white/15' : 'text-[#0071E3] bg-blue-50/80'
+                          : textMuted
                       }`}
                     >
                       <Icon size={21} strokeWidth={isActive ? 2.2 : 1.6} />
