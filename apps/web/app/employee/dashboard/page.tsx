@@ -1,10 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { webApi } from '@/lib/api';
-import { LogOut, Clock } from 'lucide-react';
+import { LogOut, Clock, ClipboardList } from 'lucide-react';
 import MonthCalendar from '@/components/MonthCalendar';
 import TimeEntryModal from '@/components/TimeEntryModal';
+import CorrectionModal from '@/components/CorrectionModal';
 
 const statusStyle = (status: string) => {
   if (status === 'APPROVED') return 'bg-emerald-50 text-emerald-600';
@@ -19,10 +21,11 @@ const statusLabel = (status: string) => {
 
 export default function EmployeeDashboard() {
   const router = useRouter();
-  const [user, setUser]             = useState<any>(null);
-  const [entries, setEntries]       = useState<any[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [user, setUser]                     = useState<any>(null);
+  const [entries, setEntries]               = useState<any[]>([]);
+  const [loading, setLoading]               = useState(true);
+  const [selectedDate, setSelectedDate]     = useState<string | null>(null);
+  const [correctionEntry, setCorrectionEntry] = useState<any>(null);
 
   const loadEntries = async (parsed: any) => {
     const data = parsed.scope === 'worker'
@@ -73,9 +76,14 @@ export default function EmployeeDashboard() {
           <h1 className="text-[15px] font-semibold text-gray-900 tracking-tight">TimeTrack</h1>
           <p className="text-[12px] text-gray-400 mt-0.5">Bonjour, {user?.firstName}</p>
         </div>
-        <button onClick={logout} className="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 transition-colors">
-          <LogOut size={15} /> Déconnexion
-        </button>
+        <div className="flex items-center gap-3">
+          <Link href="/employee/corrections" className="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 transition-colors">
+            <ClipboardList size={15} /> Corrections
+          </Link>
+          <button onClick={logout} className="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 transition-colors">
+            <LogOut size={15} /> Déconnexion
+          </button>
+        </div>
       </div>
 
       <div className="max-w-lg mx-auto p-5 space-y-4">
@@ -125,7 +133,7 @@ export default function EmployeeDashboard() {
             {weekEntries.map((e) => (
               <div key={e.id} className="bg-white rounded-2xl border border-gray-200 p-4">
                 <div className="flex justify-between items-start">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-[13px] font-semibold text-gray-900 capitalize">
                       {new Date(e.date).toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })}
                     </p>
@@ -140,9 +148,17 @@ export default function EmployeeDashboard() {
                       </p>
                     )}
                   </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${statusStyle(e.status)}`}>
-                    {statusLabel(e.status)}
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${statusStyle(e.status)}`}>
+                      {statusLabel(e.status)}
+                    </span>
+                    <button
+                      onClick={() => setCorrectionEntry(e)}
+                      className="text-[11px] text-gray-400 hover:text-[#0071E3] transition-colors underline underline-offset-2"
+                    >
+                      Corriger
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -158,6 +174,18 @@ export default function EmployeeDashboard() {
           onSaved={() => {
             setSelectedDate(null);
             loadEntries(user).catch(console.error);
+          }}
+        />
+      )}
+
+      {correctionEntry && user && (
+        <CorrectionModal
+          entry={correctionEntry}
+          scope={user.scope}
+          onClose={() => setCorrectionEntry(null)}
+          onSaved={() => {
+            setCorrectionEntry(null);
+            alert('Correction envoyée, elle sera traitée par l\'administrateur.');
           }}
         />
       )}

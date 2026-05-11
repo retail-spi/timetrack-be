@@ -67,6 +67,7 @@ export class TimeEntriesService {
         activityTypeId: dto.activityTypeId,
         projectId: dto.projectId,
         note: dto.note,
+        ...(requestingUser.role === Role.SUPER_ADMIN && { status: 'APPROVED' }),
       },
     });
 
@@ -93,7 +94,7 @@ export class TimeEntriesService {
         where: { managerId: requestingUser.id },
         select: { id: true },
       });
-      where.userId = { in: team.map((u) => u.id) };
+      where.userId = { in: [requestingUser.id, ...team.map((u) => u.id)] };
     } else if (requestingUser.role === Role.HR) {
       const scope = await this.prisma.user.findMany({
         where: { hrScopeId: requestingUser.hrScopeId ?? undefined },

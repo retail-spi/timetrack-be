@@ -37,6 +37,7 @@ export const webApi = {
   timeEntries: {
     list: (params?: object) => client.get('/time-entries', { params }).then((r) => r.data),
     create: (data: object) => client.post('/time-entries', data).then((r) => r.data),
+    delete: (id: string) => client.delete(`/time-entries/${id}`).then((r) => r.data),
     approve: (id: string) => client.patch(`/time-entries/${id}/approve`).then((r) => r.data),
     reject: (id: string) => client.patch(`/time-entries/${id}/reject`).then((r) => r.data),
   },
@@ -47,6 +48,7 @@ export const webApi = {
   },
   corrections: {
     list: () => client.get('/corrections').then((r) => r.data),
+    create: (data: object) => client.post('/corrections', data).then((r) => r.data),
     approve: (id: string) => client.patch(`/corrections/${id}/approve`).then((r) => r.data),
     reject: (id: string) => client.patch(`/corrections/${id}/reject`).then((r) => r.data),
   },

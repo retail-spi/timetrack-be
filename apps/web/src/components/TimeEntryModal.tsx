@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { webApi } from '@/lib/api';
 import { X } from 'lucide-react';
+import TimeInput from './TimeInput';
 
 interface Props {
   date: string;
@@ -106,15 +107,11 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>Début</label>
-                  <input type="text" inputMode="numeric" placeholder="08:00" value={form.startTime}
-                    onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-                    className={inputClass} />
+                  <TimeInput value={form.startTime} onChange={(v) => setForm({ ...form, startTime: v })} />
                 </div>
                 <div>
                   <label className={labelClass}>Fin</label>
-                  <input type="text" inputMode="numeric" placeholder="17:00" value={form.endTime}
-                    onChange={(e) => setForm({ ...form, endTime: e.target.value })}
-                    className={inputClass} />
+                  <TimeInput value={form.endTime} onChange={(v) => setForm({ ...form, endTime: v })} />
                 </div>
               </div>
               <div>

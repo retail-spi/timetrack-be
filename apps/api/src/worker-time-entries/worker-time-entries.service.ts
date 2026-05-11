@@ -78,7 +78,7 @@ export class WorkerTimeEntriesService {
         where: { managerId: requestingUser.id },
         select: { id: true },
       });
-      where.userId = { in: team.map((u) => u.id) };
+      where.userId = { in: [requestingUser.id, ...team.map((u) => u.id)] };
     } else if (requestingUser.role === Role.HR) {
       const scope = await this.prisma.user.findMany({
         where: { hrScopeId: requestingUser.hrScopeId ?? undefined },
