@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = 'http://localhost:3000/api/v1';
+const API_URL = process.env.API_URL || 'http://localhost:3000/api/v1';
 
 async function getPath(params: Promise<{ path: string[] }>) {
   const { path } = await params;
