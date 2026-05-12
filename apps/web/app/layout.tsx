@@ -92,6 +92,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     );
   }
 
+  const textPrimary   = isDark ? 'text-white'        : 'text-gray-900';
+  const textSecondary = isDark ? 'text-gray-300'     : 'text-gray-500';
+  const textMuted     = isDark ? 'text-gray-400'     : 'text-gray-400';
+  const hoverBg       = isDark ? 'hover:bg-white/10' : 'hover:bg-white/60';
+  const activeBg      = isDark ? 'bg-white/15 text-white' : 'bg-blue-50/80 text-blue-600';
+  const activeIcon    = isDark ? 'text-blue-300'     : 'text-blue-500';
+
   const employeeNavItems = [
     { href: '/employee/dashboard',   label: 'Accueil',      icon: LayoutDashboard },
     { href: '/employee/corrections', label: 'Corrections',  icon: ClipboardList   },
@@ -167,13 +174,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </html>
     );
   }
-
-  const textPrimary   = isDark ? 'text-white'      : 'text-gray-900';
-  const textSecondary = isDark ? 'text-gray-300'   : 'text-gray-500';
-  const textMuted     = isDark ? 'text-gray-400'   : 'text-gray-400';
-  const hoverBg       = isDark ? 'hover:bg-white/10' : 'hover:bg-white/60';
-  const activeBg      = isDark ? 'bg-white/15 text-white' : 'bg-blue-50/80 text-blue-600';
-  const activeIcon    = isDark ? 'text-blue-300'   : 'text-blue-500';
 
   return (
     <html lang="fr" suppressHydrationWarning>
