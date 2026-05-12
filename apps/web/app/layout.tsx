@@ -460,7 +460,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
               </nav>
             </>
-          ) : null}
+          ) : (
+            <nav className="md:hidden fixed bottom-5 inset-x-4 z-30">
+              <div className="rounded-3xl overflow-hidden transition-all duration-300" style={glassStyle}>
+                <div className="flex items-center justify-around px-2 py-2">
+                  {navItems.map(({ href, short, icon: Icon }) => {
+                    const isActive = pathname === href;
+                    return (
+                      <Link key={href} href={href}
+                        className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-all ${
+                          isActive
+                            ? isDark ? 'text-blue-300 bg-white/15' : 'text-[#0071E3] bg-blue-50/80'
+                            : textMuted
+                        }`}
+                      >
+                        <Icon size={21} strokeWidth={isActive ? 2.2 : 1.6} />
+                        <span className="text-[9px] font-medium leading-none">{short}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </nav>
+          )}
 
         </div>
         </ThemeContext.Provider>
