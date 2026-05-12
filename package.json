@@ -1,5 +1,6 @@
 {
   "name": "timetrack-be",
+  "author": "Francois Dive <divefrancois@gmail.com>",
   "private": true,
   "workspaces": [
     "apps/*",

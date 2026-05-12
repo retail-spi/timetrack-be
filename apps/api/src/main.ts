@@ -1,3 +1,4 @@
+// TimeTrack API — Francois Dive <divefrancois@gmail.com> — SPI Global Play Retail 2026
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '../../.env' });
 
