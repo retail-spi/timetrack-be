@@ -23,7 +23,7 @@ export class ContractsController {
   }
 
   @Post()
-  @Roles(Role.MANAGER, Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN)
   create(@Body() dto: any) {
     return this.service.create(dto);
   }

@@ -12,10 +12,11 @@ const contractTypeLabel: Record<string, string> = {
 
 export default function ContractsPage() {
   const isDark = useIsDark();
-  const [contracts, setContracts] = useState<any[]>([]);
-  const [users, setUsers]         = useState<any[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [showForm, setShowForm]   = useState(false);
+  const [contracts, setContracts]       = useState<any[]>([]);
+  const [users, setUsers]               = useState<any[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [showForm, setShowForm]         = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [editId, setEditId]       = useState<string | null>(null);
   const [editHours, setEditHours] = useState<number>(38);
   const [editType, setEditType]   = useState<string>('HOURS_38');
@@ -25,7 +26,10 @@ export default function ContractsPage() {
     const [c, u] = await Promise.all([webApi.contracts.list(), webApi.users.list()]);
     setContracts(c); setUsers(u); setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    try { setIsSuperAdmin(JSON.parse(localStorage.getItem('auth_user') || '{}').role === 'SUPER_ADMIN'); } catch {}
+    load();
+  }, []);
 
   const submit = async () => {
     if (!form.userId || !form.startDate) return;
@@ -67,9 +71,11 @@ export default function ContractsPage() {
     <div className="p-6 md:p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className={`text-[22px] font-semibold tracking-tight ${title}`}>Contrats</h1>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 bg-[#0071E3] hover:bg-[#0077ED] text-white text-[13px] font-medium px-3.5 py-2 rounded-xl transition-colors">
-          <Plus size={15} /> Nouveau
-        </button>
+        {isSuperAdmin && (
+          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 bg-[#0071E3] hover:bg-[#0077ED] text-white text-[13px] font-medium px-3.5 py-2 rounded-xl transition-colors">
+            <Plus size={15} /> Nouveau
+          </button>
+        )}
       </div>
 
       {showForm && (

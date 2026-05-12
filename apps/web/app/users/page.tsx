@@ -9,13 +9,17 @@ const roleLabel: Record<string, string>  = { SUPER_ADMIN: 'Super Admin', HR: 'RH
 
 export default function UsersPage() {
   const isDark = useIsDark();
-  const [users, setUsers]     = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers]       = useState<any[]>([]);
+  const [loading, setLoading]   = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [form, setForm] = useState({ email: '', firstName: '', lastName: '', role: 'EMPLOYEE', scope: 'employee_office', password: 'ChangeMe123!' });
 
   const load = async () => { setUsers(await webApi.users.list()); setLoading(false); };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    try { setIsSuperAdmin(JSON.parse(localStorage.getItem('auth_user') || '{}').role === 'SUPER_ADMIN'); } catch {}
+    load();
+  }, []);
 
   const submit = async () => {
     await webApi.users.create(form);
@@ -42,10 +46,12 @@ export default function UsersPage() {
     <div className="p-6 md:p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className={`text-[22px] font-semibold tracking-tight ${title}`}>Utilisateurs</h1>
-        <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1.5 bg-[#0071E3] hover:bg-[#0077ED] text-white text-[13px] font-medium px-3.5 py-2 rounded-xl transition-colors">
-          <Plus size={15} /> Nouveau
-        </button>
+        {isSuperAdmin && (
+          <button onClick={() => setShowForm(!showForm)}
+            className="flex items-center gap-1.5 bg-[#0071E3] hover:bg-[#0077ED] text-white text-[13px] font-medium px-3.5 py-2 rounded-xl transition-colors">
+            <Plus size={15} /> Nouveau
+          </button>
+        )}
       </div>
 
       {showForm && (
