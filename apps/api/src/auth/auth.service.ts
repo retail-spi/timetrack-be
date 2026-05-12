@@ -22,6 +22,11 @@ export class AuthService {
       throw new UnauthorizedException('Identifiants invalides');
     }
 
+    const contract = await this.prisma.contract.findFirst({
+      where: { userId: user.id, isActive: true },
+      orderBy: { startDate: 'desc' },
+    });
+
     const payload = {
       sub: user.id,
       email: user.email,
@@ -38,6 +43,7 @@ export class AuthService {
         lastName: user.lastName,
         role: user.role,
         scope: user.scope,
+        weeklyHours: contract?.weeklyHours ?? null,
       },
     };
   }

@@ -20,7 +20,7 @@ export default function DashboardPage() {
   const [user, setUser]                     = useState<any>(null);
   const [myEntries, setMyEntries]           = useState<any[]>([]);
   const [pending, setPending]               = useState<PendingItem[]>([]);
-  const [contractHours, setContractHours]   = useState<number>(38);
+  const [contractHours, setContractHours]   = useState<number | null>(null);
   const [selectedDate, setSelectedDate]     = useState<string | null>(null);
   const [correctionEntry, setCorrectionEntry] = useState<any>(null);
   const [loading, setLoading]               = useState<Record<string, boolean>>({});
@@ -77,12 +77,9 @@ export default function DashboardPage() {
     if (u) {
       const parsed = JSON.parse(u);
       setUser(parsed);
+      setContractHours(parsed.weeklyHours ?? null);
       loadMyEntries(parsed).catch(console.error);
       if (parsed.role === 'SUPER_ADMIN') loadPending().catch(console.error);
-      webApi.contracts.list().then((contracts: any[]) => {
-        const mine = contracts.find((c) => c.userId === parsed.id && c.isActive);
-        if (mine?.weeklyHours) setContractHours(mine.weeklyHours);
-      }).catch(console.error);
     }
   }, [loadMyEntries, loadPending]);
 
@@ -133,7 +130,7 @@ export default function DashboardPage() {
         const diff = (new Date(e.endTime).getTime() - new Date(e.startTime).getTime()) / 3600000;
         return sum + diff - (e.breakMinutes ?? 0) / 60;
       }, 0);
-  const over         = totalHours > contractHours;
+  const over         = contractHours !== null && totalHours > contractHours;
   const weekPending  = weekEntries.filter((e: any) => e.status === 'PENDING').length;
   const weekApproved = weekEntries.filter((e: any) => e.status === 'APPROVED').length;
 
@@ -152,13 +149,16 @@ export default function DashboardPage() {
           <span className={`text-[40px] font-bold leading-none tracking-tight ${over ? 'text-red-500' : title}`}>
             {totalHours.toFixed(1)}
           </span>
-          <span className={`text-[15px] ${sub}`}>h <span className="text-[13px]">/ {contractHours}h</span></span>
+          <span className={`text-[15px] ${sub}`}>h{contractHours !== null && <span className="text-[13px]"> / {contractHours}h</span>}</span>
         </div>
-        <div className={`w-full rounded-full h-1.5 mb-3 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
-          <div
-            className={`h-1.5 rounded-full transition-all ${over ? 'bg-red-400' : 'bg-[#0071E3]'}`}
-            style={{ width: `${Math.min((totalHours / contractHours) * 100, 100)}%` }}
-          />
+        {contractHours !== null && (
+          <div className={`w-full rounded-full h-1.5 mb-3 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
+            <div
+              className={`h-1.5 rounded-full transition-all ${over ? 'bg-red-400' : 'bg-[#0071E3]'}`}
+              style={{ width: `${Math.min((totalHours / contractHours) * 100, 100)}%` }}
+            />
+          </div>
+        )}
         </div>
         {user?.role !== 'SUPER_ADMIN' ? (
           <div className="flex gap-4">
