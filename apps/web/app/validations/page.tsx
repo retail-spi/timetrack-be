@@ -30,7 +30,7 @@ export default function ValidationsPage() {
     <div className="p-6 md:p-8 max-w-3xl">
       <h1 className={`text-[22px] font-semibold tracking-tight mb-6 ${title}`}>Validations</h1>
 
-      <div className={`flex rounded-xl p-1 mb-6 max-w-xs ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
+      <div className={`flex rounded-xl p-1 mb-6 max-w-xs mx-auto ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
         {([['entries', 'Entrées', entries.length], ['corrections', 'Corrections', corrections.length]] as const).map(([key, label, count]) => (
           <button key={key} onClick={() => setTab(key)}
             className={`flex-1 py-1.5 rounded-lg text-[13px] font-medium transition-all ${
