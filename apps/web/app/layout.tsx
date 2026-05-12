@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   LayoutDashboard, Users, FileText, FolderOpen,
   CheckSquare, Download, Search, LogOut,
-  Sun, Moon, Monitor,
+  Sun, Moon, Monitor, ClipboardList,
 } from 'lucide-react';
 import { ThemeContext } from './theme-context';
 import './globals.css';
@@ -84,10 +84,86 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     ? 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #111111 100%)'
     : 'linear-gradient(135deg, #e8eaf6 0%, #fce4ec 40%, #e3f2fd 100%)';
 
-  if (isLogin || isEmployee) {
+  if (isLogin) {
     return (
       <html lang="fr" suppressHydrationWarning>
         <body>{children}</body>
+      </html>
+    );
+  }
+
+  const employeeNavItems = [
+    { href: '/employee/dashboard',   label: 'Accueil',      icon: LayoutDashboard },
+    { href: '/employee/corrections', label: 'Corrections',  icon: ClipboardList   },
+  ];
+
+  if (isEmployee) {
+    return (
+      <html lang="fr" suppressHydrationWarning>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+        </head>
+        <body>
+          <ThemeContext.Provider value={isDark}>
+            <div className="min-h-screen transition-all duration-300" style={{ background: bgGradient }}>
+
+              {/* Bulles flottantes haut */}
+              <div
+                className="fixed top-5 left-4 z-30 px-4 py-2 rounded-2xl transition-all duration-300"
+                style={glassStyle}
+              >
+                <span className={`font-semibold text-[15px] tracking-tight ${textPrimary}`}>TimeTrack</span>
+              </div>
+              <div className="fixed top-5 right-4 z-30 flex items-center gap-2">
+                <button
+                  onClick={cycleTheme}
+                  className={`p-2.5 rounded-2xl transition-all duration-300 ${textSecondary}`}
+                  style={glassStyle}
+                >
+                  <ThemeIcon theme={theme} />
+                </button>
+                <button
+                  onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
+                  className={`p-2.5 rounded-2xl transition-all duration-300 ${textSecondary}`}
+                  style={glassStyle}
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+
+              {/* Contenu */}
+              <div className="pt-20 pb-28 max-w-lg mx-auto">
+                {children}
+              </div>
+
+              {/* Bottom nav */}
+              <nav className="fixed bottom-5 inset-x-4 z-30">
+                <div className="rounded-3xl overflow-hidden transition-all duration-300" style={glassStyle}>
+                  <div className="flex items-center justify-around px-2 py-2">
+                    {employeeNavItems.map(({ href, label, icon: Icon }) => {
+                      const isActive = pathname === href || (href === '/employee/dashboard' && pathname === '/employee/add');
+                      return (
+                        <Link
+                          key={href}
+                          href={href}
+                          className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-2xl transition-all ${
+                            isActive
+                              ? isDark ? 'text-blue-300 bg-white/15' : 'text-[#0071E3] bg-blue-50/80'
+                              : textMuted
+                          }`}
+                        >
+                          <Icon size={21} strokeWidth={isActive ? 2.2 : 1.6} />
+                          <span className="text-[9px] font-medium leading-none">{label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </nav>
+
+            </div>
+          </ThemeContext.Provider>
+        </body>
       </html>
     );
   }

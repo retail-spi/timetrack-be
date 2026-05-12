@@ -4,13 +4,15 @@ import { useRouter } from 'next/navigation';
 import { webApi } from '@/lib/api';
 import { ChevronLeft } from 'lucide-react';
 import TimeInput from '@/components/TimeInput';
+import { useIsDark } from '../../theme-context';
 
 export default function AddEntryPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const router  = useRouter();
+  const isDark  = useIsDark();
+  const [user, setUser]             = useState<any>(null);
   const [activityTypes, setActivityTypes] = useState<any[]>([]);
-  const [taskTypes, setTaskTypes] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [taskTypes, setTaskTypes]   = useState<any[]>([]);
+  const [loading, setLoading]       = useState(false);
   const [form, setForm] = useState({
     date: new Date().toISOString().split('T')[0],
     startTime: '',
@@ -60,109 +62,101 @@ export default function AddEntryPage() {
 
   if (!user) return null;
 
-  const inputClass = 'w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors';
-  const labelClass = 'block text-[12px] font-medium text-gray-500 mb-1.5 uppercase tracking-wide';
+  const card   = `rounded-2xl border ${isDark ? 'bg-[#1e1e1e] border-gray-700' : 'bg-white border-gray-200'}`;
+  const title  = isDark ? 'text-white' : 'text-gray-900';
+  const muted  = isDark ? 'text-gray-500' : 'text-gray-400';
+  const input  = `w-full rounded-xl px-3.5 py-2.5 text-[13px] border focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors ${isDark ? 'border-gray-600 bg-[#2a2a2a] text-gray-100' : 'border-gray-200 bg-white text-gray-900'}`;
+  const label  = `block text-[12px] font-medium mb-1.5 uppercase tracking-wide ${muted}`;
+  const optBtn = (active: boolean) => `w-full text-left px-4 py-2.5 rounded-xl border text-[13px] transition-colors ${
+    active
+      ? isDark ? 'border-blue-500 bg-blue-900/30 text-blue-300 font-medium' : 'border-blue-400 bg-blue-50 text-blue-700 font-medium'
+      : isDark ? 'border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-white/5' : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+  }`;
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7]">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-4 flex items-center gap-3">
+    <div className="p-5">
+      <div className="flex items-center gap-3 pt-1 mb-5">
         <button
           onClick={() => router.back()}
-          className="text-[#0071E3] hover:text-[#0077ED] flex items-center gap-1 text-[13px] font-medium transition-colors"
+          className={`p-1.5 rounded-xl transition-colors ${isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
         >
-          <ChevronLeft size={18} /> Retour
+          <ChevronLeft size={18} />
         </button>
-        <h1 className="text-[15px] font-semibold text-gray-900">Saisir mes heures</h1>
+        <h1 className={`text-[18px] font-semibold tracking-tight ${title}`}>Saisir mes heures</h1>
       </div>
 
-      <div className="max-w-lg mx-auto p-5">
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-5">
-
-          <div>
-            <label className={labelClass}>Date</label>
-            <input type="date" value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className={inputClass} />
-          </div>
-
-          {user.scope === 'worker' ? (
-            <>
-              <div>
-                <label className={labelClass}>Heures (ex : 7.5)</label>
-                <input type="number" step="0.5" min="0" max="24" value={form.hours}
-                  onChange={(e) => setForm({ ...form, hours: e.target.value })}
-                  className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Type de tâche</label>
-                <div className="space-y-2">
-                  {taskTypes.map((tt) => (
-                    <button key={tt.id}
-                      onClick={() => setForm({ ...form, taskTypeId: tt.id })}
-                      className={`w-full text-left px-4 py-2.5 rounded-xl border text-[13px] transition-colors ${
-                        form.taskTypeId === tt.id
-                          ? 'border-blue-400 bg-blue-50 text-blue-700 font-medium'
-                          : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                      }`}>
-                      {tt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelClass}>Début</label>
-                  <TimeInput value={form.startTime} onChange={(v) => setForm({ ...form, startTime: v })} />
-                </div>
-                <div>
-                  <label className={labelClass}>Fin</label>
-                  <TimeInput value={form.endTime} onChange={(v) => setForm({ ...form, endTime: v })} />
-                </div>
-              </div>
-              <div>
-                <label className={labelClass}>Pause (minutes)</label>
-                <input type="number" value={form.breakMinutes}
-                  onChange={(e) => setForm({ ...form, breakMinutes: parseInt(e.target.value) || 0 })}
-                  className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Type d'activité</label>
-                <div className="space-y-2">
-                  {activityTypes.map((at) => (
-                    <button key={at.id}
-                      onClick={() => setForm({ ...form, activityTypeId: at.id })}
-                      className={`w-full text-left px-4 py-2.5 rounded-xl border text-[13px] transition-colors ${
-                        form.activityTypeId === at.id
-                          ? 'border-blue-400 bg-blue-50 text-blue-700 font-medium'
-                          : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                      }`}>
-                      {at.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          <div>
-            <label className={labelClass}>Note (facultatif)</label>
-            <textarea value={form.note}
-              onChange={(e) => setForm({ ...form, note: e.target.value })}
-              className={`${inputClass} resize-none`} rows={3} />
-          </div>
-
-          <button
-            onClick={submit}
-            disabled={loading}
-            className="w-full bg-[#0071E3] hover:bg-[#0077ED] disabled:opacity-50 text-white font-semibold text-[14px] py-3 rounded-xl transition-colors"
-          >
-            {loading ? 'Enregistrement...' : 'Enregistrer'}
-          </button>
+      <div className={`${card} p-5 space-y-5`}>
+        <div>
+          <label className={label}>Date</label>
+          <input type="date" value={form.date}
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            className={input} />
         </div>
+
+        {user.scope === 'worker' ? (
+          <>
+            <div>
+              <label className={label}>Heures (ex : 7.5)</label>
+              <input type="number" step="0.5" min="0" max="24" value={form.hours}
+                onChange={(e) => setForm({ ...form, hours: e.target.value })}
+                className={input} />
+            </div>
+            <div>
+              <label className={label}>Type de tâche</label>
+              <div className="space-y-2">
+                {taskTypes.map((tt) => (
+                  <button key={tt.id} onClick={() => setForm({ ...form, taskTypeId: tt.id })} className={optBtn(form.taskTypeId === tt.id)}>
+                    {tt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={label}>Début</label>
+                <TimeInput value={form.startTime} onChange={(v) => setForm({ ...form, startTime: v })} />
+              </div>
+              <div>
+                <label className={label}>Fin</label>
+                <TimeInput value={form.endTime} onChange={(v) => setForm({ ...form, endTime: v })} />
+              </div>
+            </div>
+            <div>
+              <label className={label}>Pause (minutes)</label>
+              <input type="number" value={form.breakMinutes}
+                onChange={(e) => setForm({ ...form, breakMinutes: parseInt(e.target.value) || 0 })}
+                className={input} />
+            </div>
+            <div>
+              <label className={label}>Type d'activité</label>
+              <div className="space-y-2">
+                {activityTypes.map((at) => (
+                  <button key={at.id} onClick={() => setForm({ ...form, activityTypeId: at.id })} className={optBtn(form.activityTypeId === at.id)}>
+                    {at.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        <div>
+          <label className={label}>Note (facultatif)</label>
+          <textarea value={form.note}
+            onChange={(e) => setForm({ ...form, note: e.target.value })}
+            className={`${input} resize-none`} rows={3} />
+        </div>
+
+        <button
+          onClick={submit}
+          disabled={loading}
+          className="w-full bg-[#0071E3] hover:bg-[#0077ED] disabled:opacity-50 text-white font-semibold text-[14px] py-3 rounded-xl transition-colors"
+        >
+          {loading ? 'Enregistrement...' : 'Enregistrer'}
+        </button>
       </div>
     </div>
   );
