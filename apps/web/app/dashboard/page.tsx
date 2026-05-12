@@ -159,7 +159,6 @@ export default function DashboardPage() {
             />
           </div>
         )}
-        </div>
         {user?.role !== 'SUPER_ADMIN' ? (
           <div className="flex gap-4">
             <div className="flex items-center gap-1.5">
