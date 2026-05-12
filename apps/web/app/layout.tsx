@@ -9,6 +9,7 @@ import {
   Sun, Moon, Monitor, ClipboardList, MoreHorizontal,
 } from 'lucide-react';
 import { ThemeContext } from './theme-context';
+import { inter } from './fonts';
 import './globals.css';
 
 type Theme = 'auto' | 'light' | 'dark';
@@ -92,7 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   if (isLogin) {
     return (
-      <html lang="fr" suppressHydrationWarning>
+      <html lang="fr" suppressHydrationWarning className={inter.className}>
         <body>{children}</body>
       </html>
     );
@@ -112,7 +113,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   if (isEmployee) {
     return (
-      <html lang="fr" suppressHydrationWarning>
+      <html lang="fr" suppressHydrationWarning className={inter.className}>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </head>
@@ -182,7 +183,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning className={inter.className}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
@@ -195,8 +196,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             className="hidden md:flex flex-col fixed top-4 bottom-4 left-4 z-30 w-56 rounded-2xl overflow-hidden transition-all duration-300"
             style={glassStyle}
           >
-            <div className="px-5 py-5">
-              <h1 className={`font-semibold text-[15px] tracking-tight ${textPrimary}`}>TimeTrack</h1>
+            <div className="px-5 py-6">
+              <h1 className={`font-bold text-[24px] tracking-tight ${textPrimary}`}>TimeTrack</h1>
               <p className={`text-[12px] mt-0.5 ${textMuted}`}>Administration</p>
             </div>
             <nav className="flex-1 px-3 py-1 space-y-0.5">
