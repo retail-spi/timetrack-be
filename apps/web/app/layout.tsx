@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   LayoutDashboard, Users, FileText, FolderOpen,
   CheckSquare, Download, Search, LogOut,
-  Sun, Moon, Monitor, ClipboardList,
+  Sun, Moon, Monitor, ClipboardList, MoreHorizontal,
 } from 'lucide-react';
 import { ThemeContext } from './theme-context';
 import './globals.css';
@@ -37,10 +37,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const [theme, setTheme]         = useState<Theme>('auto');
   const [isDark, setIsDark]       = useState(false);
   const [mounted, setMounted]     = useState(false);
+  const [userRole, setUserRole]   = useState<string | null>(null);
+  const [showMore, setShowMore]   = useState(false);
 
   useEffect(() => {
     const saved = (localStorage.getItem('theme') as Theme) || 'auto';
     setTheme(saved);
+    try {
+      const u = localStorage.getItem('auth_user');
+      if (u) setUserRole(JSON.parse(u).role);
+    } catch {}
     setMounted(true);
   }, []);
 
@@ -260,32 +266,117 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Bottom nav mobile — floating liquid glass */}
-          <nav className="md:hidden fixed bottom-5 inset-x-4 z-30">
-            <div
-              className="rounded-3xl overflow-hidden transition-all duration-300"
-              style={glassStyle}
-            >
-              <div className="flex items-center justify-around px-2 py-2">
-                {navItems.map(({ href, short, icon: Icon }) => {
-                  const isActive = pathname === href;
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-all ${
-                        isActive
+          {userRole === 'MANAGER' ? (
+            <>
+              {/* Backdrop pour fermer le menu "Autres" */}
+              {showMore && (
+                <div className="md:hidden fixed inset-0 z-30" onClick={() => setShowMore(false)} />
+              )}
+
+              {/* Panneau "Autres" — slide up */}
+              <div
+                className="md:hidden fixed inset-x-4 z-40 rounded-2xl overflow-hidden transition-all duration-300"
+                style={{
+                  ...glassStyle,
+                  bottom: showMore ? '90px' : '72px',
+                  opacity: showMore ? 1 : 0,
+                  transform: showMore ? 'translateY(0)' : 'translateY(16px)',
+                  pointerEvents: showMore ? 'all' : 'none',
+                }}
+              >
+                <div className="p-2">
+                  {[
+                    { href: '/users',       label: 'Utilisateurs', icon: Users },
+                    { href: '/contracts',   label: 'Contrats',     icon: FileText },
+                    { href: '/projects',    label: 'Projets',      icon: FolderOpen },
+                    { href: '/exports',     label: 'Exports',      icon: Download },
+                    { href: '/audit-logs',  label: 'Audit logs',   icon: Search },
+                  ].map(({ href, label, icon: Icon }, i) => {
+                    const isActive = pathname === href;
+                    return (
+                      <Link key={href} href={href} onClick={() => setShowMore(false)}>
+                        <div
+                          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                            isActive
+                              ? isDark ? 'bg-white/15 text-blue-300' : 'bg-blue-50/80 text-[#0071E3]'
+                              : `${textSecondary} ${hoverBg}`
+                          }`}
+                          style={{
+                            transitionDelay: showMore ? `${i * 35}ms` : '0ms',
+                            transform: showMore ? 'translateY(0)' : 'translateY(8px)',
+                            opacity: showMore ? 1 : 0,
+                            transition: 'transform 0.25s ease, opacity 0.25s ease',
+                          }}
+                        >
+                          <Icon size={17} className={isActive ? (isDark ? 'text-blue-300' : 'text-[#0071E3]') : textMuted} />
+                          <span className="text-[13px] font-medium">{label}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Nav principale manager */}
+              <nav className="md:hidden fixed bottom-5 inset-x-4 z-40">
+                <div className="rounded-3xl overflow-hidden transition-all duration-300" style={glassStyle}>
+                  <div className="flex items-center justify-around px-2 py-2">
+                    {[
+                      { href: '/dashboard',   label: 'Accueil',     icon: LayoutDashboard },
+                      { href: '/validations', label: 'Corrections', icon: CheckSquare },
+                    ].map(({ href, label, icon: Icon }) => {
+                      const isActive = pathname === href;
+                      return (
+                        <Link key={href} href={href} onClick={() => setShowMore(false)}
+                          className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-2xl transition-all ${
+                            isActive
+                              ? isDark ? 'text-blue-300 bg-white/15' : 'text-[#0071E3] bg-blue-50/80'
+                              : textMuted
+                          }`}
+                        >
+                          <Icon size={21} strokeWidth={isActive ? 2.2 : 1.6} />
+                          <span className="text-[9px] font-medium leading-none">{label}</span>
+                        </Link>
+                      );
+                    })}
+                    <button
+                      onClick={() => setShowMore(v => !v)}
+                      className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-2xl transition-all ${
+                        showMore
                           ? isDark ? 'text-blue-300 bg-white/15' : 'text-[#0071E3] bg-blue-50/80'
                           : textMuted
                       }`}
                     >
-                      <Icon size={21} strokeWidth={isActive ? 2.2 : 1.6} />
-                      <span className="text-[9px] font-medium leading-none">{short}</span>
-                    </Link>
-                  );
-                })}
+                      <MoreHorizontal size={21} strokeWidth={showMore ? 2.2 : 1.6} />
+                      <span className="text-[9px] font-medium leading-none">Autres</span>
+                    </button>
+                  </div>
+                </div>
+              </nav>
+            </>
+          ) : (
+            <nav className="md:hidden fixed bottom-5 inset-x-4 z-30">
+              <div className="rounded-3xl overflow-hidden transition-all duration-300" style={glassStyle}>
+                <div className="flex items-center justify-around px-2 py-2">
+                  {navItems.map(({ href, short, icon: Icon }) => {
+                    const isActive = pathname === href;
+                    return (
+                      <Link key={href} href={href}
+                        className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-all ${
+                          isActive
+                            ? isDark ? 'text-blue-300 bg-white/15' : 'text-[#0071E3] bg-blue-50/80'
+                            : textMuted
+                        }`}
+                      >
+                        <Icon size={21} strokeWidth={isActive ? 2.2 : 1.6} />
+                        <span className="text-[9px] font-medium leading-none">{short}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          </nav>
+            </nav>
+          )}
 
         </div>
         </ThemeContext.Provider>
