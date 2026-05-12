@@ -149,7 +149,7 @@ export default function DashboardPage() {
           <span className={`text-[40px] font-bold leading-none tracking-tight ${over ? 'text-red-500' : title}`}>
             {totalHours.toFixed(1)}
           </span>
-          <span className={`text-[15px] ${sub}`}>h{contractHours !== null && <span className="text-[13px]"> / {contractHours}h</span>}</span>
+          <span className={`text-[15px] ${sub}`}>{contractHours !== null ? `h / ${contractHours}h` : 'h'}</span>
         </div>
         {contractHours !== null && (
           <div className={`w-full rounded-full h-1.5 mb-3 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
