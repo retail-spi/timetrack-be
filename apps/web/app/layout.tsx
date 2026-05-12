@@ -44,12 +44,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     const saved = (localStorage.getItem('theme') as Theme) || 'auto';
     setTheme(saved);
-    try {
-      const u = localStorage.getItem('auth_user');
-      if (u) setUserRole(JSON.parse(u).role);
-    } catch {}
     setMounted(true);
   }, []);
+
+  // Re-lire le rôle à chaque changement de page (le layout ne se re-monte pas entre /login et /dashboard)
+  useEffect(() => {
+    try {
+      const u = localStorage.getItem('auth_user');
+      setUserRole(u ? JSON.parse(u).role ?? null : null);
+    } catch {
+      setUserRole(null);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (!mounted) return;
