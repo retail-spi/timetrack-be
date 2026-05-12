@@ -120,17 +120,25 @@ async function main() {
   console.log('✅ Utilisateurs demo créés');
 
   // ── Contracts ─────────────────────────────────────────────────────────────
-  const users = [manager.id, worker.id];
-  for (const uid of users) {
-    await prisma.contract.create({
-      data: {
-        userId: uid,
-        contractType: ContractType.HOURS_38,
-        weeklyHours: 38,
-        startDate: new Date('2024-01-01'),
-        isActive: true,
-      },
-    });
+  const office     = await prisma.user.findUnique({ where: { email: 'office@example.com' } });
+  const commercial = await prisma.user.findUnique({ where: { email: 'commercial@example.com' } });
+
+  const contractDefs = [
+    { userId: admin.id,        contractType: ContractType.HOURS_38, weeklyHours: 38 },
+    { userId: manager.id,      contractType: ContractType.HOURS_20, weeklyHours: 20 },
+    { userId: office?.id,      contractType: ContractType.HOURS_38, weeklyHours: 38 },
+    { userId: commercial?.id,  contractType: ContractType.HOURS_38, weeklyHours: 38 },
+    { userId: worker.id,       contractType: ContractType.HOURS_38, weeklyHours: 38 },
+  ];
+
+  for (const def of contractDefs) {
+    if (!def.userId) continue;
+    const existing = await prisma.contract.findFirst({ where: { userId: def.userId, isActive: true } });
+    if (!existing) {
+      await prisma.contract.create({
+        data: { ...def, startDate: new Date('2026-01-01'), isActive: true },
+      });
+    }
   }
   console.log('✅ Contrats créés');
 
