@@ -59,7 +59,7 @@ export default function ValidationsPage() {
           {entries.map((e) => (
             <div key={e.id} className="bg-white rounded-xl p-4 shadow-sm flex justify-between items-center">
               <div>
-                <p className="font-medium">{e.user?.firstName} {e.user?.lastName}</p>
+                <p className="font-medium">{e.user?.firstName}</p>
                 <p className="text-sm text-gray-500">
                   {new Date(e.date).toLocaleDateString('fr-BE')} — {e.activityType?.label}
                 </p>
@@ -84,7 +84,7 @@ export default function ValidationsPage() {
             <div key={c.id} className="bg-white rounded-xl p-4 shadow-sm">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="font-medium">{c.submittedBy?.firstName} {c.submittedBy?.lastName}</p>
+                  <p className="font-medium">{c.submittedBy?.firstName}</p>
                   <p className="text-sm text-gray-500">{c.reason}</p>
                   <pre className="text-xs bg-gray-50 rounded p-2 mt-2">
                     {JSON.stringify(c.proposedData, null, 2)}

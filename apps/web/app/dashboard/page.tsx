@@ -43,7 +43,7 @@ export default function DashboardPage() {
     const items: PendingItem[] = [
       ...entries.filter((e: any) => e.status === 'PENDING').map((e: any) => ({
         id: e.id, type: 'time' as const,
-        userName: `${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}`.trim() || e.user?.email || '—',
+        userName: e.user?.firstName || e.user?.email || '—',
         date: e.date ? new Date(e.date).toLocaleDateString('fr-BE', { day: 'numeric', month: 'short' }) : '—',
         label: e.startTime && e.endTime
           ? `${new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })} → ${new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}`

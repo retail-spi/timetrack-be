@@ -74,7 +74,7 @@ export default function CorrectionsPage() {
               <p className={`text-[11px] ${muted}`}>Soumise le {submittedAt}</p>
               {c.status !== 'PENDING' && c.approvedBy && (
                 <p className={`text-[11px] ${muted}`}>
-                  Traitée par {c.approvedBy.firstName} {c.approvedBy.lastName}
+                  Traitée par {c.approvedBy.firstName}
                 </p>
               )}
             </div>

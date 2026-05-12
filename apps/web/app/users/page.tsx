@@ -84,7 +84,7 @@ export default function UsersPage() {
           <div key={user.id} className={`${card} p-4`}>
             <div className="flex justify-between items-start">
               <div>
-                <p className={`text-[14px] font-semibold ${title}`}>{user.firstName} {user.lastName}</p>
+                <p className={`text-[14px] font-semibold ${title}`}>{user.firstName}</p>
                 <p className={`text-[12px] mt-0.5 ${muted}`}>{user.email}</p>
                 <div className="flex gap-1.5 mt-2 flex-wrap">
                   <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeBlue}`}>{roleLabel[user.role] || user.role}</span>
@@ -112,7 +112,7 @@ export default function UsersPage() {
           <tbody>
             {users.map((user) => (
               <tr key={user.id} className={row}>
-                <td className={`px-4 py-3 text-[13px] font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{user.firstName} {user.lastName}</td>
+                <td className={`px-4 py-3 text-[13px] font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{user.firstName}</td>
                 <td className={`px-4 py-3 text-[13px] ${sub}`}>{user.email}</td>
                 <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeBlue}`}>{roleLabel[user.role] || user.role}</span></td>
                 <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeGray}`}>{scopeLabel[user.scope] || user.scope}</span></td>

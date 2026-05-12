@@ -87,7 +87,7 @@ export default function ContractsPage() {
           <div className="space-y-3">
             <select value={form.userId} onChange={(e) => setForm({ ...form, userId: e.target.value })} className={inputFull}>
               <option value="">Sélectionner un employé</option>
-              {users.map((u) => <option key={u.id} value={u.id}>{u.firstName} {u.lastName} — {u.email}</option>)}
+              {users.map((u) => <option key={u.id} value={u.id}>{u.firstName} — {u.email}</option>)}
             </select>
             <select value={form.contractType} onChange={(e) => {
               const t = e.target.value;
@@ -116,7 +116,7 @@ export default function ContractsPage() {
           <div key={c.id} className={`${card} p-4`}>
             <div className="flex justify-between items-start mb-2">
               <div>
-                <p className={`text-[14px] font-semibold ${title}`}>{c.user?.firstName} {c.user?.lastName}</p>
+                <p className={`text-[14px] font-semibold ${title}`}>{c.user?.firstName}</p>
                 <p className={`text-[11px] ${muted}`}>{c.user?.email}</p>
               </div>
               <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeStatus(c.isActive)}`}>{c.isActive ? 'Actif' : 'Inactif'}</span>
@@ -163,7 +163,7 @@ export default function ContractsPage() {
           <tbody>
             {contracts.map((c) => (
               <tr key={c.id} className={row}>
-                <td className={`px-4 py-3 text-[13px] font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{c.user?.firstName} {c.user?.lastName}</td>
+                <td className={`px-4 py-3 text-[13px] font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{c.user?.firstName}</td>
                 <td className={`px-4 py-3 text-[12px] ${muted}`}>{c.user?.email}</td>
                 {editId === c.id ? (
                   <>

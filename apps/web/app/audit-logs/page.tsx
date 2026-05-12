@@ -54,7 +54,7 @@ export default function AuditLogsPage() {
         {logs.map((log) => (
           <div key={log.id} className={`${card} p-4`}>
             <div className="flex justify-between items-start mb-1">
-              <p className={`text-[13px] font-medium ${title}`}>{log.user?.firstName} {log.user?.lastName}</p>
+              <p className={`text-[13px] font-medium ${title}`}>{log.user?.firstName}</p>
               <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${aColors[log.action] || fallbackBadge}`}>{log.action}</span>
             </div>
             <p className={`text-[12px] ${sub}`}>{log.entity} · <span className="font-mono">{log.entityId.slice(0, 8)}…</span></p>
@@ -77,7 +77,7 @@ export default function AuditLogsPage() {
             {logs.map((log) => (
               <tr key={log.id} className={row}>
                 <td className={`px-4 py-3 text-[12px] ${muted}`}>{new Date(log.createdAt).toLocaleString('fr-BE')}</td>
-                <td className={`px-4 py-3 text-[13px] font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{log.user?.firstName} {log.user?.lastName}</td>
+                <td className={`px-4 py-3 text-[13px] font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{log.user?.firstName}</td>
                 <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${aColors[log.action] || fallbackBadge}`}>{log.action}</span></td>
                 <td className={`px-4 py-3 text-[13px] ${sub}`}>{log.entity}</td>
                 <td className={`px-4 py-3 text-[11px] font-mono ${muted}`}>{log.entityId}</td>

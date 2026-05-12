@@ -46,7 +46,7 @@ export default function ProfilePage() {
       {/* Infos */}
       <div className={`${card} mb-4`}>
         <p className={`text-[11px] font-semibold uppercase tracking-wider mb-3 ${muted}`}>Informations</p>
-        <p className={`text-[16px] font-semibold ${title}`}>{user?.firstName} {user?.lastName}</p>
+        <p className={`text-[16px] font-semibold ${title}`}>{user?.firstName}</p>
         <p className={`text-[13px] mt-0.5 ${sub}`}>{user?.email}</p>
       </div>
 

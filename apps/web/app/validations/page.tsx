@@ -49,7 +49,7 @@ export default function ValidationsPage() {
           {entries.map((e) => (
             <div key={e.id} className={`${card} p-4`}>
               <div className="mb-3">
-                <p className={`text-[14px] font-semibold ${title}`}>{e.user?.firstName} {e.user?.lastName}</p>
+                <p className={`text-[14px] font-semibold ${title}`}>{e.user?.firstName}</p>
                 <p className={`text-[13px] mt-0.5 ${sub}`}>{new Date(e.date).toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })}{e.activityType && ` — ${e.activityType.label}`}</p>
                 <p className={`text-[12px] mt-0.5 ${muted}`}>{new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })} → {new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}{e.breakMinutes > 0 && ` · pause ${e.breakMinutes} min`}</p>
               </div>
@@ -67,7 +67,7 @@ export default function ValidationsPage() {
           {corrections.length === 0 && <div className={`${card} p-10 text-center`}><p className={`text-[13px] ${muted}`}>Aucune correction en attente</p></div>}
           {corrections.map((c) => (
             <div key={c.id} className={`${card} p-4`}>
-              <p className={`text-[14px] font-semibold mb-0.5 ${title}`}>{c.submittedBy?.firstName} {c.submittedBy?.lastName}</p>
+              <p className={`text-[14px] font-semibold mb-0.5 ${title}`}>{c.submittedBy?.firstName}</p>
               <p className={`text-[13px] mb-3 ${sub}`}>{c.reason}</p>
               <pre className={`text-[11px] rounded-xl p-3 mb-3 overflow-auto border ${isDark ? 'bg-[#2a2a2a] border-gray-700 text-gray-300' : 'bg-gray-50 border-gray-100 text-gray-600'}`}>{JSON.stringify(c.proposedData, null, 2)}</pre>
               <div className="flex gap-2">
