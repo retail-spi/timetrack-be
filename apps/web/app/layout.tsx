@@ -281,8 +281,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
           </div>
 
-          {/* Bottom nav mobile — floating liquid glass */}
-          {userRole === 'MANAGER' ? (
+          {/* Bottom nav mobile — floating liquid glass (rendu seulement après mount pour éviter le flash) */}
+          {mounted ? userRole === 'MANAGER' ? (
             <>
               {/* Backdrop pour fermer le menu "Autres" */}
               {showMore && (
@@ -482,7 +482,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
               </div>
             </nav>
-          )}
+          ) : null}
 
         </div>
         </ThemeContext.Provider>
