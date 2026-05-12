@@ -2,11 +2,13 @@
 import { useEffect, useState } from 'react';
 import { webApi } from '@/lib/api';
 import { Check, X } from 'lucide-react';
+import { useIsDark } from '../theme-context';
 
 export default function ValidationsPage() {
-  const [entries, setEntries] = useState<any[]>([]);
+  const isDark = useIsDark();
+  const [entries, setEntries]         = useState<any[]>([]);
   const [corrections, setCorrections] = useState<any[]>([]);
-  const [tab, setTab] = useState<'entries' | 'corrections'>('entries');
+  const [tab, setTab]     = useState<'entries' | 'corrections'>('entries');
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
@@ -15,27 +17,27 @@ export default function ValidationsPage() {
     setCorrections(c.filter((x: any) => x.status === 'PENDING'));
     setLoading(false);
   };
-
   useEffect(() => { load(); }, []);
 
-  if (loading) return <div className="p-8 text-[13px] text-gray-400 dark:text-gray-500">Chargement...</div>;
+  const card  = `rounded-2xl border ${isDark ? 'bg-[#1e1e1e] border-gray-700' : 'bg-white border-gray-200'}`;
+  const title = isDark ? 'text-white' : 'text-gray-900';
+  const sub   = isDark ? 'text-gray-400' : 'text-gray-500';
+  const muted = isDark ? 'text-gray-500' : 'text-gray-400';
+
+  if (loading) return <div className={`p-8 text-[13px] ${muted}`}>Chargement...</div>;
 
   return (
     <div className="p-6 md:p-8 max-w-3xl">
-      <h1 className="text-[22px] font-semibold text-gray-900 dark:text-white tracking-tight mb-6">Validations</h1>
+      <h1 className={`text-[22px] font-semibold tracking-tight mb-6 ${title}`}>Validations</h1>
 
-      {/* Segmented control iOS-style */}
-      <div className="flex bg-gray-100 dark:bg-[#2a2a2a] rounded-xl p-1 mb-6 max-w-xs">
+      <div className={`flex rounded-xl p-1 mb-6 max-w-xs ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
         {([['entries', 'Entrées', entries.length], ['corrections', 'Corrections', corrections.length]] as const).map(([key, label, count]) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
+          <button key={key} onClick={() => setTab(key)}
             className={`flex-1 py-1.5 rounded-lg text-[13px] font-medium transition-all ${
               tab === key
-                ? 'bg-white dark:bg-[#3a3a3a] shadow-sm text-gray-900 dark:text-white'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            }`}
-          >
+                ? isDark ? 'bg-[#3a3a3a] text-white shadow-sm' : 'bg-white text-gray-900 shadow-sm'
+                : isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+            }`}>
             {label}{count > 0 ? ` (${count})` : ''}
           </button>
         ))}
@@ -43,39 +45,17 @@ export default function ValidationsPage() {
 
       {tab === 'entries' && (
         <div className="space-y-3">
-          {entries.length === 0 && (
-            <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-10 text-center">
-              <p className="text-[13px] text-gray-400 dark:text-gray-500">Aucune entrée en attente</p>
-            </div>
-          )}
+          {entries.length === 0 && <div className={`${card} p-10 text-center`}><p className={`text-[13px] ${muted}`}>Aucune entrée en attente</p></div>}
           {entries.map((e) => (
-            <div key={e.id} className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
+            <div key={e.id} className={`${card} p-4`}>
               <div className="mb-3">
-                <p className="text-[14px] font-semibold text-gray-900 dark:text-white">{e.user?.firstName} {e.user?.lastName}</p>
-                <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">
-                  {new Date(e.date).toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })}
-                  {e.activityType && ` — ${e.activityType.label}`}
-                </p>
-                <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-0.5">
-                  {new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}
-                  {' → '}
-                  {new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}
-                  {e.breakMinutes > 0 && ` · pause ${e.breakMinutes} min`}
-                </p>
+                <p className={`text-[14px] font-semibold ${title}`}>{e.user?.firstName} {e.user?.lastName}</p>
+                <p className={`text-[13px] mt-0.5 ${sub}`}>{new Date(e.date).toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })}{e.activityType && ` — ${e.activityType.label}`}</p>
+                <p className={`text-[12px] mt-0.5 ${muted}`}>{new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })} → {new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}{e.breakMinutes > 0 && ` · pause ${e.breakMinutes} min`}</p>
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={() => webApi.timeEntries.approve(e.id).then(load)}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-medium py-2 rounded-xl transition-colors"
-                >
-                  <Check size={14} /> Approuver
-                </button>
-                <button
-                  onClick={() => webApi.timeEntries.reject(e.id).then(load)}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-[13px] font-medium py-2 rounded-xl transition-colors"
-                >
-                  <X size={14} /> Rejeter
-                </button>
+                <button onClick={() => webApi.timeEntries.approve(e.id).then(load)} className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-medium py-2 rounded-xl transition-colors"><Check size={14} /> Approuver</button>
+                <button onClick={() => webApi.timeEntries.reject(e.id).then(load)} className="flex-1 flex items-center justify-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-[13px] font-medium py-2 rounded-xl transition-colors"><X size={14} /> Rejeter</button>
               </div>
             </div>
           ))}
@@ -84,31 +64,15 @@ export default function ValidationsPage() {
 
       {tab === 'corrections' && (
         <div className="space-y-3">
-          {corrections.length === 0 && (
-            <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-10 text-center">
-              <p className="text-[13px] text-gray-400 dark:text-gray-500">Aucune correction en attente</p>
-            </div>
-          )}
+          {corrections.length === 0 && <div className={`${card} p-10 text-center`}><p className={`text-[13px] ${muted}`}>Aucune correction en attente</p></div>}
           {corrections.map((c) => (
-            <div key={c.id} className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-[14px] font-semibold text-gray-900 dark:text-white mb-0.5">{c.submittedBy?.firstName} {c.submittedBy?.lastName}</p>
-              <p className="text-[13px] text-gray-500 dark:text-gray-400 mb-3">{c.reason}</p>
-              <pre className="text-[11px] bg-gray-50 dark:bg-[#2a2a2a] border border-gray-100 dark:border-gray-700 rounded-xl p-3 mb-3 overflow-auto text-gray-600 dark:text-gray-300">
-                {JSON.stringify(c.proposedData, null, 2)}
-              </pre>
+            <div key={c.id} className={`${card} p-4`}>
+              <p className={`text-[14px] font-semibold mb-0.5 ${title}`}>{c.submittedBy?.firstName} {c.submittedBy?.lastName}</p>
+              <p className={`text-[13px] mb-3 ${sub}`}>{c.reason}</p>
+              <pre className={`text-[11px] rounded-xl p-3 mb-3 overflow-auto border ${isDark ? 'bg-[#2a2a2a] border-gray-700 text-gray-300' : 'bg-gray-50 border-gray-100 text-gray-600'}`}>{JSON.stringify(c.proposedData, null, 2)}</pre>
               <div className="flex gap-2">
-                <button
-                  onClick={() => webApi.corrections.approve(c.id).then(load)}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-medium py-2 rounded-xl transition-colors"
-                >
-                  <Check size={14} /> Approuver
-                </button>
-                <button
-                  onClick={() => webApi.corrections.reject(c.id).then(load)}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-[13px] font-medium py-2 rounded-xl transition-colors"
-                >
-                  <X size={14} /> Rejeter
-                </button>
+                <button onClick={() => webApi.corrections.approve(c.id).then(load)} className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-medium py-2 rounded-xl transition-colors"><Check size={14} /> Approuver</button>
+                <button onClick={() => webApi.corrections.reject(c.id).then(load)} className="flex-1 flex items-center justify-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-[13px] font-medium py-2 rounded-xl transition-colors"><X size={14} /> Rejeter</button>
               </div>
             </div>
           ))}

@@ -7,6 +7,7 @@ import {
   CheckSquare, Download, Search, LogOut,
   Sun, Moon, Monitor,
 } from 'lucide-react';
+import { ThemeContext } from './theme-context';
 import './globals.css';
 
 type Theme = 'auto' | 'light' | 'dark';
@@ -103,7 +104,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <div className={`flex min-h-screen transition-all duration-300${isDark ? ' dark' : ''}`} style={{ background: bgGradient }}>
+        <ThemeContext.Provider value={isDark}>
+        <div className="flex min-h-screen transition-all duration-300" style={{ background: bgGradient }}>
 
           {/* Sidebar desktop — flottante macOS */}
           <aside
@@ -209,6 +211,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </nav>
 
         </div>
+        </ThemeContext.Provider>
       </body>
     </html>
   );
