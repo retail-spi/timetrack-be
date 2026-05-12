@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   LayoutDashboard, Users, FileText, FolderOpen,
   CheckSquare, Download, Search, LogOut,
-  Sun, Moon, Monitor, ClipboardList, MoreHorizontal,
+  Sun, Moon, Monitor, ClipboardList, MoreHorizontal, UserCircle,
 } from 'lucide-react';
 import { ThemeContext } from './theme-context';
 import { inter } from './fonts';
@@ -154,13 +154,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <nav className="fixed bottom-5 inset-x-4 z-30">
                 <div className="rounded-3xl overflow-hidden transition-all duration-300" style={glassStyle}>
                   <div className="flex items-center justify-around px-2 py-2">
-                    {employeeNavItems.map(({ href, label, icon: Icon }) => {
+                    {[...employeeNavItems, { href: '/employee/profile', label: 'Profil', icon: UserCircle }].map(({ href, label, icon: Icon }) => {
                       const isActive = pathname === href || (href === '/employee/dashboard' && pathname === '/employee/add');
                       return (
                         <Link
                           key={href}
                           href={href}
-                          className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-2xl transition-all ${
+                          className={`flex flex-col items-center gap-1 px-5 py-1.5 rounded-2xl transition-all ${
                             isActive
                               ? isDark ? 'text-blue-300 bg-white/15' : 'text-[#0071E3] bg-blue-50/80'
                               : textMuted
@@ -216,6 +216,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               })}
             </nav>
             <div className="px-3 py-3 space-y-1">
+              <Link href="/profile">
+                <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-colors cursor-pointer ${
+                  pathname === '/profile' ? activeBg : `${textSecondary} ${hoverBg}`
+                }`}>
+                  <UserCircle size={16} className={pathname === '/profile' ? activeIcon : textMuted} />
+                  Mon profil
+                </div>
+              </Link>
               <button
                 onClick={cycleTheme}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 text-[13px] rounded-xl ${hoverBg} font-medium transition-colors ${textSecondary}`}
@@ -249,6 +257,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 <ThemeIcon theme={theme} />
               </button>
+              <Link
+                href="/profile"
+                className={`p-2.5 rounded-2xl transition-all duration-300 ${textSecondary}`}
+                style={glassStyle}
+              >
+                <UserCircle size={18} />
+              </Link>
               <button
                 onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
                 className={`p-2.5 rounded-2xl transition-all duration-300 ${textSecondary}`}
@@ -287,6 +302,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 <div className="p-2">
                   {[
+                    { href: '/profile',     label: 'Mon profil',   icon: UserCircle },
                     { href: '/validations', label: 'Validations',  icon: CheckSquare },
                     { href: '/users',       label: 'Utilisateurs', icon: Users },
                     { href: '/contracts',   label: 'Contrats',     icon: FileText },

@@ -33,6 +33,8 @@ export const webApi = {
     create: (data: object) => client.post('/users', data).then((r) => r.data),
     update: (id: string, data: object) => client.put(`/users/${id}`, data).then((r) => r.data),
     delete: (id: string) => client.delete(`/users/${id}`),
+    changePassword: (currentPassword: string, newPassword: string) =>
+      client.patch('/users/me/password', { currentPassword, newPassword }).then((r) => r.data),
   },
   timeEntries: {
     list: (params?: object) => client.get('/time-entries', { params }).then((r) => r.data),
