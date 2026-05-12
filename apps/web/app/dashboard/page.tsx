@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const [user, setUser]                     = useState<any>(null);
   const [myEntries, setMyEntries]           = useState<any[]>([]);
   const [pending, setPending]               = useState<PendingItem[]>([]);
+  const [contractHours, setContractHours]   = useState<number>(38);
   const [selectedDate, setSelectedDate]     = useState<string | null>(null);
   const [correctionEntry, setCorrectionEntry] = useState<any>(null);
   const [loading, setLoading]               = useState<Record<string, boolean>>({});
@@ -78,6 +79,10 @@ export default function DashboardPage() {
       setUser(parsed);
       loadMyEntries(parsed).catch(console.error);
       if (parsed.role === 'SUPER_ADMIN') loadPending().catch(console.error);
+      webApi.contracts.list().then((contracts: any[]) => {
+        const mine = contracts.find((c) => c.userId === parsed.id && c.isActive);
+        if (mine?.weeklyHours) setContractHours(mine.weeklyHours);
+      }).catch(console.error);
     }
   }, [loadMyEntries, loadPending]);
 
@@ -121,12 +126,54 @@ export default function DashboardPage() {
   const weekEntries = myEntries.filter((e) => new Date(e.date) >= startOfWeek);
   const today = new Date().toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' });
 
+  const totalHours = user?.scope === 'worker'
+    ? weekEntries.reduce((sum: number, e: any) => sum + e.hours, 0)
+    : weekEntries.reduce((sum: number, e: any) => {
+        if (!e.startTime || !e.endTime) return sum;
+        const diff = (new Date(e.endTime).getTime() - new Date(e.startTime).getTime()) / 3600000;
+        return sum + diff - (e.breakMinutes ?? 0) / 60;
+      }, 0);
+  const over         = totalHours > contractHours;
+  const weekPending  = weekEntries.filter((e: any) => e.status === 'PENDING').length;
+  const weekApproved = weekEntries.filter((e: any) => e.status === 'APPROVED').length;
+
   return (
     <div className="p-6 md:p-8 max-w-2xl space-y-7">
       <div>
         <p className={`text-[13px] capitalize mb-1 ${muted}`}>{today}</p>
         <h1 className={`text-[22px] font-semibold tracking-tight ${title}`}>Tableau de bord</h1>
         {user && <p className={`text-[13px] mt-1 ${sub}`}>Bonjour, <span className={`font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>{user.firstName}</span></p>}
+      </div>
+
+      {/* Widget semaine en cours */}
+      <div className={`${card} p-5`}>
+        <p className={`text-[12px] font-medium uppercase tracking-wide mb-3 ${muted}`}>Semaine en cours</p>
+        <div className="flex items-baseline gap-2 mb-3">
+          <span className={`text-[40px] font-bold leading-none tracking-tight ${over ? 'text-red-500' : title}`}>
+            {totalHours.toFixed(1)}
+          </span>
+          <span className={`text-[15px] ${sub}`}>h <span className="text-[13px]">/ {contractHours}h</span></span>
+        </div>
+        <div className={`w-full rounded-full h-1.5 mb-3 ${isDark ? 'bg-[#2a2a2a]' : 'bg-gray-100'}`}>
+          <div
+            className={`h-1.5 rounded-full transition-all ${over ? 'bg-red-400' : 'bg-[#0071E3]'}`}
+            style={{ width: `${Math.min((totalHours / contractHours) * 100, 100)}%` }}
+          />
+        </div>
+        {user?.role !== 'SUPER_ADMIN' ? (
+          <div className="flex gap-4">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span className={`text-[12px] ${sub}`}>{weekPending} en attente</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className={`text-[12px] ${sub}`}>{weekApproved} approuvées</span>
+            </div>
+          </div>
+        ) : (
+          <p className={`text-[12px] ${sub}`}>{weekEntries.length} entrée{weekEntries.length !== 1 ? 's' : ''} cette semaine</p>
+        )}
       </div>
 
       <div>
