@@ -81,7 +81,7 @@ export class CorrectionsService {
         where: { managerId: requestingUser.id },
         select: { id: true },
       });
-      where.submittedById = { in: team.map((u) => u.id) };
+      where.submittedById = { in: [requestingUser.id, ...team.map((u) => u.id)] };
     }
 
     return this.prisma.correction.findMany({

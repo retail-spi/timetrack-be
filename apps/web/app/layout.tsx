@@ -286,6 +286,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 <div className="p-2">
                   {[
+                    { href: '/validations', label: 'Validations',  icon: CheckSquare },
                     { href: '/users',       label: 'Utilisateurs', icon: Users },
                     { href: '/contracts',   label: 'Contrats',     icon: FileText },
                     { href: '/projects',    label: 'Projets',      icon: FolderOpen },
@@ -323,7 +324,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <div className="flex items-center justify-around px-2 py-2">
                     {[
                       { href: '/dashboard',   label: 'Accueil',     icon: LayoutDashboard },
-                      { href: '/validations', label: 'Corrections', icon: CheckSquare },
+                      { href: '/corrections', label: 'Corrections', icon: ClipboardList },
                     ].map(({ href, label, icon: Icon }) => {
                       const isActive = pathname === href;
                       return (
