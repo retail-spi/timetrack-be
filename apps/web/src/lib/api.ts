@@ -66,8 +66,10 @@ export const webApi = {
       `${process.env.NEXT_PUBLIC_API_URL}/exports/worker-entries/csv?from=${from}&to=${to}`,
   },
   contracts: {
-  list: () => client.get('/contracts').then((r) => r.data),
-  create: (data: object) => client.post('/contracts', data).then((r) => r.data),
+    list:   ()                       => client.get('/contracts').then((r) => r.data),
+    create: (data: object)           => client.post('/contracts', data).then((r) => r.data),
+    update: (id: string, data: object) => client.put(`/contracts/${id}`, data).then((r) => r.data),
+    delete: (id: string)             => client.delete(`/contracts/${id}`).then((r) => r.data),
   },
   activityTypes: {
   list: () => client.get('/activity-types').then((r) => r.data),

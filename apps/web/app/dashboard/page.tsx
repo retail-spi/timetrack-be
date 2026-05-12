@@ -77,7 +77,14 @@ export default function DashboardPage() {
     if (u) {
       const parsed = JSON.parse(u);
       setUser(parsed);
-      setContractHours(parsed.weeklyHours ?? null);
+      if (parsed.weeklyHours != null) {
+        setContractHours(parsed.weeklyHours);
+      } else {
+        webApi.contracts.list().then((cs: any[]) => {
+          const mine = cs.find((c: any) => c.userId === parsed.id && c.isActive);
+          if (mine) setContractHours(mine.weeklyHours);
+        }).catch(() => {});
+      }
       loadMyEntries(parsed).catch(console.error);
       if (parsed.role === 'SUPER_ADMIN') loadPending().catch(console.error);
     }

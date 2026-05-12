@@ -35,4 +35,8 @@ export class ContractsService {
   async update(id: string, data: any) {
     return this.prisma.contract.update({ where: { id }, data });
   }
+
+  async remove(id: string) {
+    return this.prisma.contract.delete({ where: { id } });
+  }
 }
