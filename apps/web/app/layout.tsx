@@ -207,7 +207,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p className={`text-[12px] mt-0.5 ${textMuted}`}>Administration</p>
             </div>
             <nav className="flex-1 px-3 py-1 space-y-0.5">
-              {navItems.map(({ href, label, icon: Icon }) => {
+              {navItems.filter(item => !(item.href === '/validations' && userRole === 'MANAGER')).map(({ href, label, icon: Icon }) => {
                 const isActive = pathname === href;
                 return (
                   <Link key={href} href={href}>
@@ -308,13 +308,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 <div className="p-2">
                   {[
-                    { href: '/profile',     label: 'Mon profil',   icon: UserCircle },
-                    { href: '/validations', label: 'Validations',  icon: CheckSquare },
-                    { href: '/users',       label: 'Utilisateurs', icon: Users },
-                    { href: '/contracts',   label: 'Contrats',     icon: FileText },
-                    { href: '/projects',    label: 'Projets',      icon: FolderOpen },
-                    { href: '/exports',     label: 'Exports',      icon: Download },
-                    { href: '/audit-logs',  label: 'Audit logs',   icon: Search },
+                    { href: '/profile',    label: 'Mon profil',   icon: UserCircle },
+                    { href: '/users',      label: 'Utilisateurs', icon: Users },
+                    { href: '/contracts',  label: 'Contrats',     icon: FileText },
+                    { href: '/projects',   label: 'Projets',      icon: FolderOpen },
+                    { href: '/exports',    label: 'Exports',      icon: Download },
+                    { href: '/audit-logs', label: 'Audit logs',   icon: Search },
                   ].map(({ href, label, icon: Icon }, i) => {
                     const isActive = pathname === href;
                     return (
