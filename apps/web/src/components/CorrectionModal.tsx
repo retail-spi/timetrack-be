@@ -26,10 +26,10 @@ export default function CorrectionModal({ entry, scope, onClose, onSaved }: Prop
   const isWorker = scope === 'worker';
 
   const initStart = entry.startTime
-    ? new Date(entry.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+    ? new Date(entry.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })
     : '';
   const initEnd = entry.endTime
-    ? new Date(entry.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+    ? new Date(entry.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })
     : '';
 
   const [reason, setReason]           = useState('');

@@ -46,7 +46,7 @@ export default function DashboardPage() {
         userName: e.user?.firstName || e.user?.email || '—',
         date: e.date ? new Date(e.date).toLocaleDateString('fr-BE', { day: 'numeric', month: 'short' }) : '—',
         label: e.startTime && e.endTime
-          ? `${new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })} → ${new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}`
+          ? `${new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} → ${new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}`
           : 'Pointage',
       })),
       ...workers.filter((w: any) => w.status === 'PENDING').map((w: any) => ({
@@ -257,7 +257,7 @@ export default function DashboardPage() {
                   </p>
                   <p className={`text-[11px] truncate ${muted}`}>
                     {e.startTime && e.endTime
-                      ? `${new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })} → ${new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}`
+                      ? `${new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} → ${new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}`
                       : `${e.hours}h`}
                     {e.activityType && ` · ${e.activityType.label}`}
                   </p>

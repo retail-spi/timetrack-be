@@ -51,7 +51,7 @@ export default function ValidationsPage() {
               <div className="mb-3">
                 <p className={`text-[14px] font-semibold ${title}`}>{e.user?.firstName}</p>
                 <p className={`text-[13px] mt-0.5 ${sub}`}>{new Date(e.date).toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })}{e.activityType && ` — ${e.activityType.label}`}</p>
-                <p className={`text-[12px] mt-0.5 ${muted}`}>{new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })} → {new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })}{e.breakMinutes > 0 && ` · pause ${e.breakMinutes} min`}</p>
+                <p className={`text-[12px] mt-0.5 ${muted}`}>{new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} → {new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}{e.breakMinutes > 0 && ` · pause ${e.breakMinutes} min`}</p>
               </div>
               <div className="flex gap-2">
                 <button onClick={() => webApi.timeEntries.approve(e.id).then(load)} className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-medium py-2 rounded-xl transition-colors"><Check size={14} /> Approuver</button>
