@@ -141,10 +141,14 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
                 </div>
               </div>
               <div>
-                <label className={labelClass}>Pause (minutes)</label>
-                <input type="number" value={form.breakMinutes}
-                  onChange={(e) => setForm({ ...form, breakMinutes: parseInt(e.target.value) || 0 })}
-                  className={inputClass} />
+                <label className={labelClass}>Pause</label>
+                <div className="flex flex-wrap gap-2">
+                  {[0, 15, 30, 45, 60].map((min) => (
+                    <button key={min} onClick={() => setForm({ ...form, breakMinutes: min })} className={optBtn(form.breakMinutes === min)}>
+                      {min === 0 ? 'Aucune' : `${min} min`}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className={labelClass}>Type d'activité</label>
