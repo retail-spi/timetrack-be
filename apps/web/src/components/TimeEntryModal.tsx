@@ -8,15 +8,15 @@ import { useIsDark } from '../../app/theme-context';
 interface Props {
   date: string;
   user: any;
-  contractHours?: number;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export default function TimeEntryModal({ date, user, contractHours = 38, onClose, onSaved }: Props) {
+export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) {
   const isDark = useIsDark();
   const [activityTypes, setActivityTypes] = useState<any[]>([]);
   const [taskTypes, setTaskTypes]         = useState<any[]>([]);
+  const [contractHours, setContractHours] = useState<number>(38);
   const [loading, setLoading]             = useState(false);
   const [form, setForm] = useState({
     startTime: '', endTime: '', breakMinutes: 0,
@@ -26,6 +26,7 @@ export default function TimeEntryModal({ date, user, contractHours = 38, onClose
   useEffect(() => {
     webApi.activityTypes.list().then(setActivityTypes).catch(console.error);
     webApi.taskTypes.list().then(setTaskTypes).catch(console.error);
+    webApi.contracts.mine().then((c) => { if (c?.weeklyHours) setContractHours(c.weeklyHours); }).catch(console.error);
   }, []);
 
   const submit = async () => {
