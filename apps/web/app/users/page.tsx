@@ -224,7 +224,8 @@ export default function UsersPage() {
             </div>
 
             <div className={`${card} overflow-x-auto`}>
-              <table className="border-collapse" style={{ tableLayout: 'fixed', width: '100%', minWidth: `${130 + daysInMonth * 26}px` }}>
+              <div style={{ minWidth: `${130 + daysInMonth * 26}px` }}>
+              <table className="border-collapse" style={{ tableLayout: 'fixed', width: '100%' }}>
                 <colgroup>
                   <col style={{ width: 130 }} />
                 </colgroup>
@@ -302,6 +303,7 @@ export default function UsersPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )}
