@@ -133,10 +133,11 @@ async function main() {
 
   for (const def of contractDefs) {
     if (!def.userId) continue;
-    const existing = await prisma.contract.findFirst({ where: { userId: def.userId, isActive: true } });
+    const userId = def.userId;
+    const existing = await prisma.contract.findFirst({ where: { userId, isActive: true } });
     if (!existing) {
       await prisma.contract.create({
-        data: { ...def, startDate: new Date('2026-01-01'), isActive: true },
+        data: { ...def, userId, startDate: new Date('2026-01-01'), isActive: true },
       });
     }
   }
