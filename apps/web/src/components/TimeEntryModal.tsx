@@ -18,6 +18,7 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
   const [taskTypes, setTaskTypes]         = useState<any[]>([]);
   const [contractHours, setContractHours] = useState<number>(38);
   const [loading, setLoading]             = useState(false);
+  const [error, setError]                 = useState('');
   const [form, setForm] = useState({
     startTime: '', endTime: '', breakMinutes: 0,
     activityTypeId: '', hours: '', taskTypeId: '', note: '',
@@ -30,6 +31,14 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
   }, []);
 
   const submit = async () => {
+    setError('');
+    if (user?.scope === 'worker') {
+      if (!form.hours) return setError('Indique le nombre d\'heures.');
+      if (!form.taskTypeId) return setError('Sélectionne un type de tâche.');
+    } else {
+      if (!form.startTime || !form.endTime) return setError('Indique l\'heure de début et de fin.');
+      if (!form.activityTypeId) return setError('Sélectionne un type d\'activité.');
+    }
     setLoading(true);
     try {
       if (user?.scope === 'worker') {
@@ -48,7 +57,7 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
       }
       onSaved();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erreur lors de la création');
+      setError(err.response?.data?.message || 'Erreur lors de la création.');
     } finally {
       setLoading(false);
     }
@@ -157,6 +166,9 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
               className={`${inputClass} resize-none`} rows={2} />
           </div>
 
+          {error && (
+            <p className={`text-[12px] px-1 ${isDark ? 'text-red-400' : 'text-red-500'}`}>{error}</p>
+          )}
           <button onClick={submit} disabled={loading}
             className="w-full bg-[#0071E3] hover:bg-[#0077ED] disabled:opacity-50 text-white font-semibold text-[14px] py-3 rounded-xl transition-colors">
             {loading ? 'Enregistrement...' : 'Enregistrer'}
