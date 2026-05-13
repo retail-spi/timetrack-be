@@ -39,8 +39,8 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
       } else {
         await webApi.timeEntries.create({
           date,
-          startTime: `${date}T${form.startTime}:00`,
-          endTime:   `${date}T${form.endTime}:00`,
+          startTime: new Date(`${date}T${form.startTime}:00`).toISOString(),
+          endTime:   new Date(`${date}T${form.endTime}:00`).toISOString(),
           breakMinutes: form.breakMinutes,
           activityTypeId: form.activityTypeId,
           note: form.note,

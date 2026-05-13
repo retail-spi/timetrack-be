@@ -142,9 +142,9 @@ export default function EmployeeDashboard() {
                     <p className={`text-[12px] mt-0.5 ${sub}`}>{e.hours}h · {e.taskType?.label}</p>
                   ) : (
                     <p className={`text-[12px] mt-0.5 ${sub}`}>
-                      {new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
+                      {new Date(e.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' })}
                       {' → '}
-                      {new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
+                      {new Date(e.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' })}
                       {e.activityType && ` · ${e.activityType.label}`}
                     </p>
                   )}

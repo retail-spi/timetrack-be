@@ -45,8 +45,8 @@ export default function AddEntryPage() {
       } else {
         await webApi.timeEntries.create({
           date: form.date,
-          startTime: `${form.date}T${form.startTime}:00`,
-          endTime: `${form.date}T${form.endTime}:00`,
+          startTime: new Date(`${form.date}T${form.startTime}:00`).toISOString(),
+          endTime:   new Date(`${form.date}T${form.endTime}:00`).toISOString(),
           breakMinutes: form.breakMinutes,
           activityTypeId: form.activityTypeId,
           note: form.note,
