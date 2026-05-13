@@ -71,7 +71,7 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
     isDark ? 'border-gray-600 bg-[#2a2a2a] text-gray-100 placeholder:text-gray-500' : 'border-gray-200 bg-white text-gray-900'
   }`;
   const labelClass = `block text-[12px] font-medium mb-1.5 uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`;
-  const optBtn = (active: boolean) => `w-full text-left px-4 py-2.5 rounded-xl border text-[13px] transition-colors ${
+  const optBtn = (active: boolean) => `px-3 py-1.5 rounded-full border text-[12px] font-medium transition-colors ${
     active
       ? isDark ? 'border-blue-500 bg-blue-900/30 text-blue-300 font-medium' : 'border-blue-400 bg-blue-50 text-blue-700 font-medium'
       : isDark ? 'border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-white/5' : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
@@ -105,7 +105,7 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
               </div>
               <div>
                 <label className={labelClass}>Type de tâche</label>
-                <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
                   {taskTypes.map((tt) => (
                     <button key={tt.id} onClick={() => setForm({ ...form, taskTypeId: tt.id })} className={optBtn(form.taskTypeId === tt.id)}>
                       {tt.label}
@@ -148,7 +148,7 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
               </div>
               <div>
                 <label className={labelClass}>Type d'activité</label>
-                <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
                   {activityTypes.map((at) => (
                     <button key={at.id} onClick={() => setForm({ ...form, activityTypeId: at.id })} className={optBtn(form.activityTypeId === at.id)}>
                       {at.label}
