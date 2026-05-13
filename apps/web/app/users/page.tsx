@@ -224,10 +224,9 @@ export default function UsersPage() {
             </div>
 
             <div className={`${card} overflow-x-auto`}>
-              <table className="border-collapse" style={{ tableLayout: 'fixed', minWidth: `${130 + daysInMonth * 32}px` }}>
+              <table className="border-collapse" style={{ tableLayout: 'fixed', width: '100%', minWidth: `${130 + daysInMonth * 26}px` }}>
                 <colgroup>
                   <col style={{ width: 130 }} />
-                  {days.map(d => <col key={d} style={{ width: 32 }} />)}
                 </colgroup>
                 <thead>
                   <tr className={`border-b ${isDark ? 'border-gray-700/50' : 'border-gray-100'}`}>
