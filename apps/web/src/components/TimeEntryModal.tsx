@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { webApi } from '@/lib/api';
 import { X } from 'lucide-react';
 import TimeInput from './TimeInput';
-import { useIsDark } from '@/app/theme-context';
+import { useIsDark } from '../../app/theme-context';
 
 interface Props {
   date: string;
