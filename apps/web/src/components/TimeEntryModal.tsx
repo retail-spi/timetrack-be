@@ -8,11 +8,12 @@ import { useIsDark } from '../../app/theme-context';
 interface Props {
   date: string;
   user: any;
+  contractHours?: number;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) {
+export default function TimeEntryModal({ date, user, contractHours = 38, onClose, onSaved }: Props) {
   const isDark = useIsDark();
   const [activityTypes, setActivityTypes] = useState<any[]>([]);
   const [taskTypes, setTaskTypes]         = useState<any[]>([]);
@@ -105,6 +106,20 @@ export default function TimeEntryModal({ date, user, onClose, onSaved }: Props) 
             </>
           ) : (
             <>
+              <button
+                onClick={() => setForm((f) => ({
+                  ...f,
+                  startTime: '08:30',
+                  endTime: contractHours >= 38 ? '16:30' : '12:30',
+                  breakMinutes: contractHours >= 38 ? 30 : 0,
+                }))}
+                className={`w-full text-left px-4 py-2.5 rounded-xl border text-[13px] transition-colors ${
+                  isDark ? 'border-gray-600 text-gray-300 hover:border-blue-500 hover:bg-blue-900/20' : 'border-gray-200 text-gray-600 hover:border-blue-400 hover:bg-blue-50'
+                }`}
+              >
+                <span className={`text-[11px] font-semibold uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Préremplir · </span>
+                {contractHours >= 38 ? '08:30 → 16:30 · 30 min pause' : '08:30 → 12:30 · sans pause'}
+              </button>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>Début</label>

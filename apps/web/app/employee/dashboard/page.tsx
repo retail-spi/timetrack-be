@@ -170,6 +170,7 @@ export default function EmployeeDashboard() {
         <TimeEntryModal
           date={selectedDate}
           user={user}
+          contractHours={contractHours}
           onClose={() => setSelectedDate(null)}
           onSaved={() => { setSelectedDate(null); loadEntries(user).catch(console.error); }}
         />
