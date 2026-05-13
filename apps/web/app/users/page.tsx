@@ -1,11 +1,17 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { webApi } from '@/lib/api';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useIsDark } from '../theme-context';
 
 const scopeLabel: Record<string, string> = { employee_office: 'Bureau', employee_commercial: 'Commercial', worker: 'Ouvrier' };
 const roleLabel: Record<string, string>  = { SUPER_ADMIN: 'Super Admin', HR: 'RH', MANAGER: 'Manager', EMPLOYEE: 'Employé' };
+
+const STATUS_COLOR: Record<string, string> = {
+  APPROVED: 'bg-emerald-400',
+  PENDING:  'bg-amber-400',
+  REJECTED: 'bg-red-400',
+};
 
 export default function UsersPage() {
   const isDark = useIsDark();
@@ -13,13 +19,36 @@ export default function UsersPage() {
   const [loading, setLoading]   = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [view, setView]         = useState<'list' | 'planning'>('list');
+  const [month, setMonth]       = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
+  const [allEntries, setAllEntries]             = useState<any[]>([]);
+  const [allWorkerEntries, setAllWorkerEntries] = useState<any[]>([]);
+  const [entriesLoaded, setEntriesLoaded]       = useState(false);
+  const [entriesLoading, setEntriesLoading]     = useState(false);
   const [form, setForm] = useState({ email: '', firstName: '', lastName: '', role: 'EMPLOYEE', scope: 'employee_office', password: 'ChangeMe123!' });
 
   const load = async () => { setUsers(await webApi.users.list()); setLoading(false); };
+
+  const loadEntries = async () => {
+    setEntriesLoading(true);
+    try {
+      const [te, we] = await Promise.all([webApi.timeEntries.list(), webApi.workerEntries.list()]);
+      setAllEntries(te);
+      setAllWorkerEntries(we);
+      setEntriesLoaded(true);
+    } finally {
+      setEntriesLoading(false);
+    }
+  };
+
   useEffect(() => {
     try { setIsSuperAdmin(JSON.parse(localStorage.getItem('auth_user') || '{}').role === 'SUPER_ADMIN'); } catch {}
     load();
   }, []);
+
+  useEffect(() => {
+    if (view === 'planning' && !entriesLoaded) loadEntries();
+  }, [view]);
 
   const submit = async () => {
     await webApi.users.create(form);
@@ -29,6 +58,34 @@ export default function UsersPage() {
   };
   const toggleActive = async (user: any) => { await webApi.users.update(user.id, { isActive: !user.isActive }); await load(); };
 
+  // Planning helpers
+  const year     = month.getFullYear();
+  const monthNum = month.getMonth();
+  const daysInMonth = new Date(year, monthNum + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+  const todayDate = new Date();
+  const isToday   = (d: number) => todayDate.getFullYear() === year && todayDate.getMonth() === monthNum && todayDate.getDate() === d;
+  const isWeekend = (d: number) => { const dow = new Date(year, monthNum, d).getDay(); return dow === 0 || dow === 6; };
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+  const getDayKey = (userId: string, d: number) => `${userId}_${year}-${pad2(monthNum + 1)}-${pad2(d)}`;
+
+  const entryMap = useMemo(() => {
+    const map = new Map<string, any>();
+    [...allEntries, ...allWorkerEntries].forEach(e => {
+      const uid = e.userId ?? e.user?.id;
+      if (!uid) return;
+      const dateStr = (e.date || '').split('T')[0];
+      const key = `${uid}_${dateStr}`;
+      if (!map.has(key)) map.set(key, e);
+    });
+    return map;
+  }, [allEntries, allWorkerEntries]);
+
+  const monthLabel = month.toLocaleDateString('fr-BE', { month: 'long', year: 'numeric' });
+  const activeUsers = users.filter(u => u.isActive);
+
+  // Styles
   const card   = `rounded-2xl border ${isDark ? 'bg-[#1e1e1e] border-gray-700' : 'bg-white border-gray-200'}`;
   const title  = isDark ? 'text-white' : 'text-gray-900';
   const sub    = isDark ? 'text-gray-400' : 'text-gray-500';
@@ -39,13 +96,22 @@ export default function UsersPage() {
   const badgeBlue  = isDark ? 'bg-blue-900/40 text-blue-400' : 'bg-blue-50 text-blue-600';
   const badgeGray  = isDark ? 'bg-gray-700 text-gray-300'    : 'bg-gray-100 text-gray-500';
   const badgeGreen = (on: boolean) => on ? (isDark ? 'bg-emerald-900/40 text-emerald-400' : 'bg-emerald-50 text-emerald-600') : (isDark ? 'bg-red-900/40 text-red-400' : 'bg-red-50 text-red-500');
+  const tabBtn = (active: boolean) => `px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${active ? (isDark ? 'bg-white/15 text-white' : 'bg-blue-50 text-blue-600') : (isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700')}`;
+  const stickyCell = `sticky left-0 z-10 ${isDark ? 'bg-[#1e1e1e]' : 'bg-white'}`;
 
   if (loading) return <div className={`p-8 text-[13px] ${muted}`}>Chargement...</div>;
 
   return (
     <div className="p-6 md:p-8">
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className={`text-[22px] font-semibold tracking-tight ${title}`}>Utilisateurs</h1>
+        <div className="flex items-center gap-3">
+          <h1 className={`text-[22px] font-semibold tracking-tight ${title}`}>Utilisateurs</h1>
+          <div className={`hidden md:flex items-center gap-1 p-1 rounded-xl ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
+            <button onClick={() => setView('list')}     className={tabBtn(view === 'list')}>Liste</button>
+            <button onClick={() => setView('planning')} className={tabBtn(view === 'planning')}>Planning</button>
+          </div>
+        </div>
         {isSuperAdmin && (
           <button onClick={() => setShowForm(!showForm)}
             className="flex items-center gap-1.5 bg-[#0071E3] hover:bg-[#0077ED] text-white text-[13px] font-medium px-3.5 py-2 rounded-xl transition-colors">
@@ -54,6 +120,7 @@ export default function UsersPage() {
         )}
       </div>
 
+      {/* Form nouveau utilisateur */}
       {showForm && (
         <div className={`${card} p-5 mb-5 max-w-xl`}>
           <div className="flex justify-between items-center mb-4">
@@ -79,6 +146,7 @@ export default function UsersPage() {
         </div>
       )}
 
+      {/* Mobile : toujours liste */}
       <div className="space-y-2.5 md:hidden">
         {users.map((user) => (
           <div key={user.id} className={`${card} p-4`}>
@@ -93,35 +161,151 @@ export default function UsersPage() {
               </div>
               <div className="flex flex-col items-end gap-2">
                 <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeGreen(user.isActive)}`}>{user.isActive ? 'Actif' : 'Inactif'}</span>
-                <button onClick={() => toggleActive(user)} className={`text-[12px] transition-colors ${muted} hover:${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{user.isActive ? 'Désactiver' : 'Activer'}</button>
+                <button onClick={() => toggleActive(user)} className={`text-[12px] transition-colors ${muted}`}>{user.isActive ? 'Désactiver' : 'Activer'}</button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className={`hidden md:block ${card} overflow-hidden`}>
-        <table className="w-full">
-          <thead>
-            <tr className={`border-b ${isDark ? 'border-gray-700/50' : 'border-gray-100'}`}>
-              {['Nom','Email','Rôle','Scope','Statut',''].map((h, i) => (
-                <th key={i} className={`text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wider ${muted}`}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className={row}>
-                <td className={`px-4 py-3 text-[13px] font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{user.firstName}</td>
-                <td className={`px-4 py-3 text-[13px] ${sub}`}>{user.email}</td>
-                <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeBlue}`}>{roleLabel[user.role] || user.role}</span></td>
-                <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeGray}`}>{scopeLabel[user.scope] || user.scope}</span></td>
-                <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeGreen(user.isActive)}`}>{user.isActive ? 'Actif' : 'Inactif'}</span></td>
-                <td className="px-4 py-3 text-right"><button onClick={() => toggleActive(user)} className={`text-[12px] transition-colors ${muted}`}>{user.isActive ? 'Désactiver' : 'Activer'}</button></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Desktop : liste ou planning */}
+      <div className="hidden md:block">
+        {view === 'list' ? (
+          <div className={`${card} overflow-hidden`}>
+            <table className="w-full">
+              <thead>
+                <tr className={`border-b ${isDark ? 'border-gray-700/50' : 'border-gray-100'}`}>
+                  {['Nom', 'Email', 'Rôle', 'Scope', 'Statut', ''].map((h, i) => (
+                    <th key={i} className={`text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wider ${muted}`}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id} className={row}>
+                    <td className={`px-4 py-3 text-[13px] font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{user.firstName} {user.lastName}</td>
+                    <td className={`px-4 py-3 text-[13px] ${sub}`}>{user.email}</td>
+                    <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeBlue}`}>{roleLabel[user.role] || user.role}</span></td>
+                    <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeGray}`}>{scopeLabel[user.scope] || user.scope}</span></td>
+                    <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeGreen(user.isActive)}`}>{user.isActive ? 'Actif' : 'Inactif'}</span></td>
+                    <td className="px-4 py-3 text-right"><button onClick={() => toggleActive(user)} className={`text-[12px] transition-colors ${muted}`}>{user.isActive ? 'Désactiver' : 'Activer'}</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          /* ── Planning view ── */
+          <div>
+            {/* Navigation mois + légende */}
+            <div className="flex items-center gap-3 mb-4">
+              <button
+                onClick={() => setMonth(m => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
+                className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className={`text-[14px] font-semibold capitalize w-36 text-center ${title}`}>{monthLabel}</span>
+              <button
+                onClick={() => setMonth(m => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
+                className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
+              >
+                <ChevronRight size={16} />
+              </button>
+              {entriesLoading && <span className={`text-[12px] ${muted}`}>Chargement…</span>}
+              <div className="ml-auto flex items-center gap-4">
+                {[['bg-emerald-400', 'Approuvé'], ['bg-amber-400', 'En attente'], ['bg-red-400', 'Rejeté']].map(([color, label]) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <span className={`w-2.5 h-2.5 rounded-sm ${color}`} />
+                    <span className={`text-[11px] ${muted}`}>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className={`${card} overflow-x-auto`}>
+              <table className="border-collapse" style={{ tableLayout: 'fixed', minWidth: `${130 + daysInMonth * 32}px` }}>
+                <colgroup>
+                  <col style={{ width: 130 }} />
+                  {days.map(d => <col key={d} style={{ width: 32 }} />)}
+                </colgroup>
+                <thead>
+                  <tr className={`border-b ${isDark ? 'border-gray-700/50' : 'border-gray-100'}`}>
+                    <th className={`text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider ${muted} ${stickyCell}`}>
+                      Employé
+                    </th>
+                    {days.map(d => {
+                      const weekend = isWeekend(d);
+                      const dayName = new Date(year, monthNum, d).toLocaleDateString('fr-BE', { weekday: 'short' }).slice(0, 2);
+                      return (
+                        <th key={d} className={`py-2 text-center ${
+                          isToday(d)
+                            ? isDark ? 'text-blue-300' : 'text-blue-600'
+                            : weekend
+                              ? isDark ? 'text-gray-600' : 'text-gray-300'
+                              : muted
+                        }`}>
+                          <div className="text-[11px] font-bold leading-none">{d}</div>
+                          <div className={`text-[9px] font-normal capitalize leading-none mt-0.5 ${weekend ? (isDark ? 'text-gray-600' : 'text-gray-300') : muted}`}>{dayName}</div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeUsers.map((user) => (
+                    <tr key={user.id} className={`border-b last:border-0 ${isDark ? 'border-gray-700/30' : 'border-gray-50'}`}>
+                      {/* Nom (sticky) */}
+                      <td className={`px-4 py-2 ${stickyCell}`}>
+                        <div className={`text-[12px] font-medium truncate ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                          {user.firstName} {user.lastName}
+                        </div>
+                        <div className={`text-[10px] ${muted}`}>{scopeLabel[user.scope] || user.scope}</div>
+                      </td>
+                      {/* Jours */}
+                      {days.map(d => {
+                        const entry   = entryMap.get(getDayKey(user.id, d));
+                        const weekend = isWeekend(d);
+                        const today   = isToday(d);
+                        const dot     = entry ? (STATUS_COLOR[entry.status] || 'bg-gray-400') : null;
+
+                        let tooltip = '';
+                        if (entry) {
+                          if (entry.startTime && entry.endTime) {
+                            const s = new Date(entry.startTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' });
+                            const e2 = new Date(entry.endTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' });
+                            tooltip = `${s} → ${e2}`;
+                            if (entry.breakMinutes) tooltip += ` (pause ${entry.breakMinutes}min)`;
+                          } else if (entry.hours != null) {
+                            tooltip = `${entry.hours}h`;
+                          }
+                          if (entry.activityType?.label) tooltip += ` · ${entry.activityType.label}`;
+                          if (entry.taskType?.label)     tooltip += ` · ${entry.taskType.label}`;
+                        }
+
+                        return (
+                          <td
+                            key={d}
+                            title={tooltip || undefined}
+                            className={[
+                              'text-center py-2',
+                              weekend ? (isDark ? 'bg-white/[0.02]' : 'bg-gray-50/80') : '',
+                              today   ? (isDark ? 'bg-blue-900/10' : 'bg-blue-50/40') : '',
+                            ].join(' ')}
+                          >
+                            {dot && (
+                              <div className={`mx-auto w-4 h-4 rounded-sm ${dot} opacity-90`} />
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
