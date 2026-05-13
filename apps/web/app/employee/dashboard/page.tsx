@@ -25,6 +25,7 @@ export default function EmployeeDashboard() {
   const isDark  = useIsDark();
   const [user, setUser]                       = useState<any>(null);
   const [entries, setEntries]                 = useState<any[]>([]);
+  const [contractHours, setContractHours]     = useState<number>(38);
   const [loading, setLoading]                 = useState(true);
   const [selectedDate, setSelectedDate]       = useState<string | null>(null);
   const [correctionEntry, setCorrectionEntry] = useState<any>(null);
@@ -41,7 +42,10 @@ export default function EmployeeDashboard() {
     if (!u) { router.push('/login'); return; }
     const parsed = JSON.parse(u);
     setUser(parsed);
-    loadEntries(parsed).catch(console.error).finally(() => setLoading(false));
+    Promise.all([
+      loadEntries(parsed),
+      webApi.contracts.mine().then((c) => { if (c?.weeklyHours) setContractHours(c.weeklyHours); }).catch(() => {}),
+    ]).catch(console.error).finally(() => setLoading(false));
   }, []);
 
   const now = new Date();
@@ -58,7 +62,6 @@ export default function EmployeeDashboard() {
         return sum + diff - e.breakMinutes / 60;
       }, 0);
 
-  const contractHours = 38;
   const over    = totalHours > contractHours;
   const pending  = weekEntries.filter((e) => e.status === 'PENDING').length;
   const approved = weekEntries.filter((e) => e.status === 'APPROVED').length;

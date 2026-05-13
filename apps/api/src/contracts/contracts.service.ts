@@ -5,6 +5,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ContractsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findMine(userId: string) {
+    return this.prisma.contract.findFirst({
+      where: { userId, isActive: true },
+      orderBy: { startDate: 'desc' },
+    });
+  }
+
   async findAll() {
     return this.prisma.contract.findMany({
       include: { user: { select: { firstName: true, lastName: true, email: true } } },

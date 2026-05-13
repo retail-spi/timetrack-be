@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nes
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
 import { ContractsService } from './contracts.service';
 import { Role } from '@prisma/client';
 
@@ -9,6 +10,11 @@ import { Role } from '@prisma/client';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ContractsController {
   constructor(private readonly service: ContractsService) {}
+
+  @Get('mine')
+  findMine(@CurrentUser() user: any) {
+    return this.service.findMine(user.id);
+  }
 
   @Get()
   @Roles(Role.MANAGER, Role.SUPER_ADMIN)

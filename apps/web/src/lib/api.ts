@@ -69,6 +69,7 @@ export const webApi = {
   },
   contracts: {
     list:   ()                       => client.get('/contracts').then((r) => r.data),
+    mine:   ()                       => client.get('/contracts/mine').then((r) => r.data),
     create: (data: object)           => client.post('/contracts', data).then((r) => r.data),
     update: (id: string, data: object) => client.put(`/contracts/${id}`, data).then((r) => r.data),
     delete: (id: string)             => client.delete(`/contracts/${id}`).then((r) => r.data),
