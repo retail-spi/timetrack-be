@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { webApi } from '@/lib/api';
 import { Plus, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useIsDark } from '../theme-context';
@@ -25,6 +25,8 @@ export default function UsersPage() {
   const [allWorkerEntries, setAllWorkerEntries] = useState<any[]>([]);
   const [entriesLoaded, setEntriesLoaded]       = useState(false);
   const [entriesLoading, setEntriesLoading]     = useState(false);
+  const [cardWidth, setCardWidth]               = useState(0);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [form, setForm] = useState({ email: '', firstName: '', lastName: '', role: 'EMPLOYEE', scope: 'employee_office', password: 'ChangeMe123!' });
 
   const load = async () => { setUsers(await webApi.users.list()); setLoading(false); };
@@ -48,6 +50,18 @@ export default function UsersPage() {
 
   useEffect(() => {
     if (view === 'planning' && !entriesLoaded) loadEntries();
+  }, [view]);
+
+  // Mesure la largeur réelle du conteneur pour calculer la largeur exacte de la table
+  useEffect(() => {
+    if (view !== 'planning') return;
+    const el = cardRef.current;
+    if (!el) return;
+    const measure = () => setCardWidth(el.offsetWidth);
+    measure();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    ro?.observe(el);
+    return () => ro?.disconnect();
   }, [view]);
 
   const submit = async () => {
@@ -84,6 +98,13 @@ export default function UsersPage() {
 
   const monthLabel = month.toLocaleDateString('fr-BE', { month: 'long', year: 'numeric' });
   const activeUsers = users.filter(u => u.isActive);
+
+  // Largeur de la table : remplit le conteneur, mais jamais moins de MIN_DAY_W par colonne
+  const NAME_COL_W = 140;
+  const MIN_DAY_W  = 30;
+  const minTableW  = NAME_COL_W + daysInMonth * MIN_DAY_W;
+  const tableW     = Math.max(cardWidth || minTableW, minTableW);
+  const dayColW    = (tableW - NAME_COL_W) / daysInMonth;
 
   // Styles
   const card   = `rounded-2xl border ${isDark ? 'bg-[#1e1e1e] border-gray-700' : 'bg-white border-gray-200'}`;
@@ -223,11 +244,11 @@ export default function UsersPage() {
               </div>
             </div>
 
-            <div className={`${card} overflow-x-auto`}>
-              <div style={{ minWidth: `${130 + daysInMonth * 26}px` }}>
-              <table className="border-collapse" style={{ tableLayout: 'fixed', width: '100%' }}>
+            <div ref={cardRef} className={`${card} overflow-x-auto`}>
+              <table className="border-collapse" style={{ tableLayout: 'fixed', width: `${tableW}px` }}>
                 <colgroup>
-                  <col style={{ width: 130 }} />
+                  <col style={{ width: NAME_COL_W }} />
+                  {days.map(d => <col key={d} style={{ width: dayColW }} />)}
                 </colgroup>
                 <thead>
                   <tr className={`border-b ${isDark ? 'border-gray-700/50' : 'border-gray-100'}`}>
@@ -303,7 +324,6 @@ export default function UsersPage() {
                   ))}
                 </tbody>
               </table>
-              </div>
             </div>
           </div>
         )}
