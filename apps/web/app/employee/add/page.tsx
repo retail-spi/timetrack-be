@@ -1,8 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { webApi } from '@/lib/api';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Search, X } from 'lucide-react';
 import TimeInput from '@/components/TimeInput';
 import { useIsDark } from '../../theme-context';
 
@@ -12,7 +12,12 @@ export default function AddEntryPage() {
   const [user, setUser]             = useState<any>(null);
   const [activityTypes, setActivityTypes] = useState<any[]>([]);
   const [taskTypes, setTaskTypes]   = useState<any[]>([]);
+  const [projects, setProjects]     = useState<any[]>([]);
   const [loading, setLoading]       = useState(false);
+  const [projectSearch, setProjectSearch] = useState('');
+  const [showProjectList, setShowProjectList] = useState(false);
+  const projectRef = useRef<HTMLDivElement>(null);
+
   const [form, setForm] = useState({
     date: new Date().toISOString().split('T')[0],
     startTime: '',
@@ -21,16 +26,51 @@ export default function AddEntryPage() {
     activityTypeId: '',
     hours: '',
     taskTypeId: '',
+    projectId: '',
     note: '',
   });
 
   useEffect(() => {
     const u = localStorage.getItem('auth_user');
     if (!u) { router.push('/login'); return; }
-    setUser(JSON.parse(u));
+    const parsed = JSON.parse(u);
+    setUser(parsed);
     webApi.activityTypes.list().then(setActivityTypes).catch(console.error);
     webApi.taskTypes.list().then(setTaskTypes).catch(console.error);
+    if (parsed.scope === 'worker') {
+      webApi.projects.list().then((p: any[]) => setProjects(p.filter((x) => x.isActive))).catch(console.error);
+    }
   }, []);
+
+  // Close project dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (projectRef.current && !projectRef.current.contains(e.target as Node)) {
+        setShowProjectList(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const filteredProjects = projects.filter(
+    (p) =>
+      p.name.toLowerCase().includes(projectSearch.toLowerCase()) ||
+      p.code.toLowerCase().includes(projectSearch.toLowerCase()),
+  );
+
+  const selectedProject = projects.find((p) => p.id === form.projectId);
+
+  const selectProject = (p: any) => {
+    setForm({ ...form, projectId: p.id });
+    setProjectSearch('');
+    setShowProjectList(false);
+  };
+
+  const clearProject = () => {
+    setForm({ ...form, projectId: '' });
+    setProjectSearch('');
+  };
 
   const submit = async () => {
     setLoading(true);
@@ -40,6 +80,7 @@ export default function AddEntryPage() {
           date: form.date,
           hours: parseFloat(form.hours),
           taskTypeId: form.taskTypeId,
+          projectId: form.projectId || undefined,
           note: form.note,
         });
       } else {
@@ -111,6 +152,58 @@ export default function AddEntryPage() {
                 ))}
               </div>
             </div>
+
+            {/* Project selector */}
+            {projects.length > 0 && (
+              <div>
+                <label className={label}>Projet (facultatif)</label>
+                {selectedProject ? (
+                  <div className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-[13px] ${isDark ? 'border-blue-500 bg-blue-900/30' : 'border-blue-400 bg-blue-50'}`}>
+                    <span>
+                      <span className={`font-mono text-[12px] mr-2 ${isDark ? 'text-blue-400' : 'text-blue-500'}`}>{selectedProject.code}</span>
+                      <span className={isDark ? 'text-blue-300' : 'text-blue-700'}>{selectedProject.name}</span>
+                    </span>
+                    <button onClick={clearProject} className={isDark ? 'text-blue-400 hover:text-blue-200' : 'text-blue-500 hover:text-blue-700'}>
+                      <X size={15} />
+                    </button>
+                  </div>
+                ) : (
+                  <div ref={projectRef} className="relative">
+                    <div className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-[13px] ${isDark ? 'border-gray-600 bg-[#2a2a2a]' : 'border-gray-200 bg-white'}`}>
+                      <Search size={14} className={muted} />
+                      <input
+                        type="text"
+                        placeholder="Rechercher un projet..."
+                        value={projectSearch}
+                        onFocus={() => setShowProjectList(true)}
+                        onChange={(e) => { setProjectSearch(e.target.value); setShowProjectList(true); }}
+                        className={`flex-1 bg-transparent outline-none text-[13px] ${isDark ? 'text-gray-100 placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'}`}
+                      />
+                    </div>
+                    {showProjectList && (
+                      <div className={`absolute z-20 left-0 right-0 mt-1.5 rounded-xl border shadow-lg overflow-hidden ${isDark ? 'bg-[#2a2a2a] border-gray-700' : 'bg-white border-gray-200'}`}>
+                        <div className="max-h-48 overflow-y-auto">
+                          {filteredProjects.length === 0 ? (
+                            <p className={`px-3.5 py-3 text-[13px] ${muted}`}>Aucun résultat</p>
+                          ) : (
+                            filteredProjects.map((p) => (
+                              <button
+                                key={p.id}
+                                onMouseDown={() => selectProject(p)}
+                                className={`w-full text-left px-3.5 py-2.5 text-[13px] flex items-center gap-2.5 transition-colors ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-50'}`}
+                              >
+                                <span className={`font-mono text-[11px] shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-500'}`}>{p.code}</span>
+                                <span className={title}>{p.name}</span>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </>
         ) : (
           <>

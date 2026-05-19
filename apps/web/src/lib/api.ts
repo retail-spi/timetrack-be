@@ -57,6 +57,7 @@ export const webApi = {
   projects: {
     list: () => client.get('/projects').then((r) => r.data),
     create: (data: object) => client.post('/projects', data).then((r) => r.data),
+    import: (rows: { name: string; code: string }[]) => client.post('/projects/import', { rows }).then((r) => r.data),
   },
   auditLogs: {
     list: (params?: object) => client.get('/audit-logs', { params }).then((r) => r.data),

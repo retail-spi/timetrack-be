@@ -29,4 +29,17 @@ export class ProjectsService {
   async remove(id: string) {
     return this.prisma.project.delete({ where: { id } });
   }
+
+  async importMany(rows: { name: string; code: string }[]) {
+    const results = await Promise.all(
+      rows.map(({ name, code }) =>
+        this.prisma.project.upsert({
+          where: { code },
+          update: { name },
+          create: { name, code },
+        }),
+      ),
+    );
+    return { count: results.length };
+  }
 }

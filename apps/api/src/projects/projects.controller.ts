@@ -20,6 +20,12 @@ export class ProjectsController {
     return this.service.findOne(id);
   }
 
+  @Post('import')
+  @Roles(Role.SUPER_ADMIN, Role.MANAGER)
+  importMany(@Body() dto: { rows: { name: string; code: string }[] }) {
+    return this.service.importMany(dto.rows);
+  }
+
   @Post()
   @Roles(Role.SUPER_ADMIN, Role.MANAGER)
   create(@Body() dto: any) {
