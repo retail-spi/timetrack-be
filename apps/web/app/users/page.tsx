@@ -227,9 +227,10 @@ export default function UsersPage() {
             className={card}
             style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
           >
+            <div style={{ minWidth: `${minTableW}px`, width: '100%' }}>
             <table
               className="border-collapse"
-              style={{ tableLayout: 'fixed', width: `${minTableW}px` }}
+              style={{ tableLayout: 'fixed', width: '100%' }}
             >
               <colgroup>
                 <col style={{ width: 110 }} />
@@ -291,6 +292,7 @@ export default function UsersPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}
