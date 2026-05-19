@@ -328,7 +328,7 @@ export default function DashboardPage() {
       {isSuperAdmin ? (
         /* SUPER_ADMIN — deux colonnes sur desktop */
         <div className="flex flex-col md:flex-row gap-7 items-start">
-          <div className="w-full md:w-auto md:shrink-0 space-y-7">
+          <div className="w-full md:w-[420px] md:shrink-0 space-y-7">
             {weekWidget}
             {calendarSection}
             {thisWeekSection}
