@@ -414,11 +414,9 @@ export default function DashboardPage() {
             {/* Contenu scrollable */}
             <div className="flex-1 overflow-y-auto p-3 space-y-2.5 overscroll-contain">
               {notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/40' : 'bg-green-50'}`}>
-                    <Check size={18} className={isDark ? 'text-green-400' : 'text-green-500'} />
-                  </div>
-                  <p className={`text-[12px] ${muted}`}>Tout est validé ✓</p>
+                <div className="flex flex-col items-center justify-center py-10 gap-2">
+                  <span className="text-[32px] leading-none">☁️</span>
+                  <p className={`text-[12px] ${muted}`}>Tout est validé</p>
                 </div>
               ) : (
                 notifGrouped.map(({ uid, name, items }) => {
