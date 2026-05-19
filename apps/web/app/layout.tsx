@@ -281,7 +281,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Contenu principal */}
-          <div className="flex-1 flex flex-col min-h-screen md:ml-[248px]">
+          <div className="flex-1 flex flex-col min-h-screen min-w-0 md:ml-[248px]">
             <main className="flex-1 overflow-y-auto overflow-x-hidden pt-20 md:pt-0 pb-28 md:pb-0">
               {children}
             </main>
