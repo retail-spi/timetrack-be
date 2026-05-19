@@ -343,13 +343,13 @@ export default function DashboardPage() {
 
       {isSuperAdmin ? (
         /* SUPER_ADMIN — deux colonnes sur desktop */
-        <div className="flex flex-col md:flex-row gap-7 items-start">
-          <div className="w-full md:w-[420px] md:shrink-0 space-y-7">
+        <div className="flex flex-col lg:flex-row gap-7 items-start">
+          <div className="w-full lg:w-[420px] lg:shrink-0 space-y-7">
             {weekWidget}
             {calendarSection}
             {thisWeekSection}
           </div>
-          <div className="w-full md:flex-1 md:min-w-0">
+          <div className="w-full lg:flex-1 lg:min-w-0">
             {pendingSection}
           </div>
         </div>
