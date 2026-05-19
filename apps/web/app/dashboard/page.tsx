@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { webApi } from '@/lib/api';
-import { Check, CheckCheck, X, Trash2, Clock, ClipboardList, Wrench } from 'lucide-react';
+import { Bell, Check, CheckCheck, X, Trash2, Clock, ClipboardList, Wrench } from 'lucide-react';
 import MonthCalendar from '@/components/MonthCalendar';
 import TimeEntryModal from '@/components/TimeEntryModal';
 import CorrectionModal from '@/components/CorrectionModal';
@@ -25,6 +25,8 @@ export default function DashboardPage() {
   const [selectedDate, setSelectedDate]     = useState<string | null>(null);
   const [correctionEntry, setCorrectionEntry] = useState<any>(null);
   const [loading, setLoading]               = useState<Record<string, boolean>>({});
+  const [drawerOpen, setDrawerOpen]         = useState(false);
+  const [dismissed, setDismissed]           = useState<Set<string>>(new Set());
 
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
@@ -80,6 +82,20 @@ export default function DashboardPage() {
     });
     return Array.from(map.entries()).map(([uid, items]) => ({ uid, name: items[0].userName, items }));
   }, [pending]);
+
+  const notifications = useMemo(() => pending.filter(p => !dismissed.has(p.id)), [pending, dismissed]);
+
+  const notifGrouped = useMemo(() => {
+    const map = new Map<string, PendingItem[]>();
+    notifications.forEach(item => {
+      if (!map.has(item.userId)) map.set(item.userId, []);
+      map.get(item.userId)!.push(item);
+    });
+    return Array.from(map.entries()).map(([uid, items]) => ({ uid, name: items[0].userName, items }));
+  }, [notifications]);
+
+  const handleDismiss    = (id: string) => setDismissed(d => new Set([...d, id]));
+  const handleDismissAll = () => setDismissed(new Set(pending.map(p => p.id)));
 
   const loadMyEntries = useCallback(async (currentUser: any) => {
     const list = currentUser?.scope === 'worker'
@@ -353,6 +369,134 @@ export default function DashboardPage() {
       {correctionEntry && user && (
         <CorrectionModal entry={correctionEntry} scope={user.scope} onClose={() => setCorrectionEntry(null)}
           onSaved={() => { setCorrectionEntry(null); alert('Correction envoyée.'); }} />
+      )}
+
+      {/* ── Bulle cloche (SUPER_ADMIN uniquement) ── */}
+      {isSuperAdmin && (
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="fixed bottom-28 right-5 md:bottom-8 md:right-8 z-40 w-13 h-13 rounded-full bg-[#0071E3] text-white shadow-xl flex items-center justify-center hover:bg-[#0077ED] transition-colors"
+          style={{ width: 52, height: 52 }}
+        >
+          <Bell size={21} />
+          {notifications.length > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-[20px] h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-1">
+              {notifications.length > 99 ? '99+' : notifications.length}
+            </span>
+          )}
+        </button>
+      )}
+
+      {/* ── Tiroir notifications ── */}
+      {isSuperAdmin && (
+        <>
+          {/* Backdrop */}
+          <div
+            className={`fixed inset-0 z-40 transition-opacity duration-300 ${drawerOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+            style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(2px)' }}
+            onClick={() => setDrawerOpen(false)}
+          />
+
+          {/* Panneau */}
+          <div
+            className={`fixed top-0 right-0 bottom-0 z-50 w-full md:w-[400px] flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${drawerOpen ? 'translate-x-0' : 'translate-x-full'} ${isDark ? 'bg-[#1a1a1a]' : 'bg-white'}`}
+          >
+            {/* Header tiroir */}
+            <div className={`flex items-center gap-3 px-5 py-4 border-b shrink-0 ${isDark ? 'border-gray-700/50' : 'border-gray-100'}`}>
+              <Bell size={16} className={muted} />
+              <p className={`flex-1 text-[15px] font-semibold ${title}`}>Notifications</p>
+              {notifications.length > 0 && (
+                <span className="text-[11px] font-bold rounded-full px-2 py-0.5 bg-red-500 text-white">
+                  {notifications.length}
+                </span>
+              )}
+              {notifications.length > 0 && (
+                <button
+                  onClick={handleDismissAll}
+                  className={`text-[12px] font-medium transition-colors ${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-700'}`}
+                >
+                  Tout enlever
+                </button>
+              )}
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className={`p-1.5 rounded-xl transition-colors ${isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-400'}`}
+              >
+                <X size={17} />
+              </button>
+            </div>
+
+            {/* Contenu tiroir */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {notifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-48 gap-3">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/40' : 'bg-green-50'}`}>
+                    <Check size={20} className={isDark ? 'text-green-400' : 'text-green-500'} />
+                  </div>
+                  <p className={`text-[13px] ${muted}`}>Aucune notification en attente</p>
+                </div>
+              ) : (
+                notifGrouped.map(({ uid, name, items }) => {
+                  const allBusy = items.every(i => loading[i.id]);
+                  return (
+                    <div key={uid} className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-[#242424] border-gray-700/50' : 'bg-gray-50 border-gray-100'}`}>
+                      {/* En-tête groupe */}
+                      <div className={`flex items-center gap-2 px-4 py-2.5 border-b ${isDark ? 'border-gray-700/50' : 'border-gray-100'}`}>
+                        <p className={`flex-1 text-[13px] font-semibold truncate ${title}`}>{name}</p>
+                        <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'}`}>
+                          {items.length}
+                        </span>
+                        <button
+                          onClick={() => handleApproveAll(items)}
+                          disabled={allBusy}
+                          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors disabled:opacity-40 shrink-0 ${isDark ? 'bg-green-900/40 text-green-400 hover:bg-green-900/60' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
+                        >
+                          <CheckCheck size={12} />
+                          Tout valider
+                        </button>
+                      </div>
+
+                      {/* Entrées */}
+                      {items.map(item => {
+                        const cfg = typeConfig[item.type];
+                        const TypeIcon = cfg.icon;
+                        const busy = loading[item.id];
+                        return (
+                          <div key={item.id} className={`flex items-center gap-3 px-4 py-2.5 border-b last:border-0 ${isDark ? 'border-gray-700/30' : 'border-gray-100'}`}>
+                            <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${cfg.color}`}>
+                              <TypeIcon size={11} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-[12px] truncate ${muted}`}>{item.date} · {item.label}</p>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                onClick={() => handleDismiss(item.id)}
+                                disabled={busy}
+                                title="Enlever la notification"
+                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${isDark ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                              >
+                                <X size={11} />
+                              </button>
+                              <button
+                                onClick={() => handleApprove(item)}
+                                disabled={busy}
+                                title="Valider"
+                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${isDark ? 'bg-green-900/40 text-green-400 hover:bg-green-900/60' : 'bg-green-50 text-green-500 hover:bg-green-100'}`}
+                              >
+                                <Check size={11} strokeWidth={2.5} />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
