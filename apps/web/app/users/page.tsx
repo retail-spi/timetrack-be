@@ -225,7 +225,7 @@ export default function UsersPage() {
           {/* Tableau scrollable horizontalement (swipe sur mobile, scroll sur desktop) */}
           <div
             className={card}
-            style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+            style={{ overflowX: 'scroll', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
           >
             <table
               className="border-collapse"
