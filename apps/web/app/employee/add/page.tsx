@@ -24,7 +24,6 @@ export default function AddEntryPage() {
     endTime: '',
     breakMinutes: 0,
     activityTypeId: '',
-    hours: '',
     taskTypeId: '',
     projectId: '',
     note: '',
@@ -53,6 +52,17 @@ export default function AddEntryPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Calcule les heures ouvrier depuis start/end/break, arrondi au 0.5 le plus proche
+  const workerHours: number | null = (() => {
+    if (!form.startTime || !form.endTime) return null;
+    const [sh, sm] = form.startTime.split(':').map(Number);
+    const [eh, em] = form.endTime.split(':').map(Number);
+    const totalMin = (eh * 60 + em) - (sh * 60 + sm) - (form.breakMinutes || 0);
+    if (totalMin <= 0) return null;
+    const raw = totalMin / 60;
+    return Math.round(raw * 2) / 2;
+  })();
+
   const filteredProjects = projects.filter(
     (p) =>
       p.name.toLowerCase().includes(projectSearch.toLowerCase()) ||
@@ -76,9 +86,10 @@ export default function AddEntryPage() {
     setLoading(true);
     try {
       if (user?.scope === 'worker') {
+        if (!workerHours || workerHours <= 0) { alert('Heures invalides — vérifiez les horaires saisis.'); setLoading(false); return; }
         await webApi.workerEntries.create({
           date: form.date,
-          hours: parseFloat(form.hours),
+          hours: workerHours,
           taskTypeId: form.taskTypeId,
           projectId: form.projectId || undefined,
           note: form.note,
@@ -136,12 +147,28 @@ export default function AddEntryPage() {
 
         {user.scope === 'worker' ? (
           <>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={label}>Début</label>
+                <TimeInput value={form.startTime} onChange={(v) => setForm({ ...form, startTime: v })} />
+              </div>
+              <div>
+                <label className={label}>Fin</label>
+                <TimeInput value={form.endTime} onChange={(v) => setForm({ ...form, endTime: v })} />
+              </div>
+            </div>
             <div>
-              <label className={label}>Heures (ex : 7.5)</label>
-              <input type="number" step="0.5" min="0" max="24" value={form.hours}
-                onChange={(e) => setForm({ ...form, hours: e.target.value })}
+              <label className={label}>Pause (minutes)</label>
+              <input type="number" value={form.breakMinutes}
+                onChange={(e) => setForm({ ...form, breakMinutes: parseInt(e.target.value) || 0 })}
                 className={input} />
             </div>
+            {workerHours !== null && (
+              <div className={`flex items-center justify-between px-4 py-3 rounded-xl text-[13px] font-medium ${isDark ? 'bg-blue-900/20 text-blue-300 border border-blue-800/40' : 'bg-blue-50 text-blue-700 border border-blue-100'}`}>
+                <span>Total calculé</span>
+                <span className="text-[16px] font-semibold">{workerHours}h</span>
+              </div>
+            )}
             <div>
               <label className={label}>Type de tâche</label>
               <div className="space-y-2">
