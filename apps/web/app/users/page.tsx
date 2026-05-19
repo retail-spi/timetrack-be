@@ -226,7 +226,7 @@ export default function UsersPage() {
               </div>
             </div>
 
-            <div className={`${card} overflow-x-auto`}>
+            <div className={card}>
               <table className="border-collapse" style={{ tableLayout: 'fixed', width: `max(100%, ${minTableW}px)` }}>
                 <colgroup>
                   <col style={{ width: 140 }} />
