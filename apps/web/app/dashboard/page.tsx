@@ -371,120 +371,89 @@ export default function DashboardPage() {
           onSaved={() => { setCorrectionEntry(null); alert('Correction envoyée.'); }} />
       )}
 
-      {/* ── Bulle cloche (SUPER_ADMIN uniquement) ── */}
-      {isSuperAdmin && (
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="fixed bottom-28 right-5 md:bottom-8 md:right-8 z-40 w-13 h-13 rounded-full bg-[#0071E3] text-white shadow-xl flex items-center justify-center hover:bg-[#0077ED] transition-colors"
-          style={{ width: 52, height: 52 }}
-        >
-          <Bell size={21} />
-          {notifications.length > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[20px] h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-1">
-              {notifications.length > 99 ? '99+' : notifications.length}
-            </span>
-          )}
-        </button>
-      )}
-
-      {/* ── Tiroir notifications ── */}
+      {/* ── Bulle cloche + panneau flottant (SUPER_ADMIN uniquement) ── */}
       {isSuperAdmin && (
         <>
-          {/* Backdrop */}
-          <div
-            className={`fixed inset-0 z-40 transition-opacity duration-300 ${drawerOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-            style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(2px)' }}
-            onClick={() => setDrawerOpen(false)}
-          />
+          {/* Click-outside invisible */}
+          {drawerOpen && (
+            <div className="fixed inset-0 z-40" onClick={() => setDrawerOpen(false)} />
+          )}
 
-          {/* Panneau */}
+          {/* Panneau flottant liquid glass — surgit de la bulle */}
           <div
-            className={`fixed top-0 right-0 bottom-0 z-50 w-full md:w-[400px] flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${drawerOpen ? 'translate-x-0' : 'translate-x-full'} ${isDark ? 'bg-[#1a1a1a]' : 'bg-white'}`}
+            className={`fixed z-50 right-5 md:right-8 bottom-[calc(7rem+60px)] md:bottom-[calc(2rem+60px)] w-[calc(100vw-2.5rem)] md:w-[380px] rounded-3xl flex flex-col transition-all duration-200 ease-out ${drawerOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none'}`}
+            style={{
+              transformOrigin: 'bottom right',
+              maxHeight: '72vh',
+              background: isDark ? 'rgba(28,28,30,0.78)' : 'rgba(255,255,255,0.75)',
+              backdropFilter: 'blur(40px) saturate(200%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+              boxShadow: isDark
+                ? '0 24px 64px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)'
+                : '0 24px 64px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9)',
+              border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.6)',
+            } as React.CSSProperties}
           >
-            {/* Header tiroir */}
-            <div className={`flex items-center gap-3 px-5 py-4 border-b shrink-0 ${isDark ? 'border-gray-700/50' : 'border-gray-100'}`}>
-              <Bell size={16} className={muted} />
-              <p className={`flex-1 text-[15px] font-semibold ${title}`}>Notifications</p>
+            {/* Header */}
+            <div className={`flex items-center gap-3 px-5 py-3.5 shrink-0 border-b ${isDark ? 'border-white/10' : 'border-black/6'}`}>
+              <Bell size={15} className={muted} />
+              <p className={`flex-1 text-[14px] font-semibold ${title}`}>Notifications</p>
               {notifications.length > 0 && (
-                <span className="text-[11px] font-bold rounded-full px-2 py-0.5 bg-red-500 text-white">
-                  {notifications.length}
-                </span>
+                <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 bg-red-500 text-white">{notifications.length}</span>
               )}
               {notifications.length > 0 && (
-                <button
-                  onClick={handleDismissAll}
-                  className={`text-[12px] font-medium transition-colors ${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-700'}`}
-                >
+                <button onClick={handleDismissAll} className={`text-[11px] font-medium transition-colors ${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-700'}`}>
                   Tout enlever
                 </button>
               )}
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className={`p-1.5 rounded-xl transition-colors ${isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-400'}`}
-              >
-                <X size={17} />
+              <button onClick={() => setDrawerOpen(false)} className={`p-1 rounded-xl transition-colors ${isDark ? 'hover:bg-white/10 text-gray-500' : 'hover:bg-black/6 text-gray-400'}`}>
+                <X size={15} />
               </button>
             </div>
 
-            {/* Contenu tiroir */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {/* Contenu scrollable */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-2.5 overscroll-contain">
               {notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-48 gap-3">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/40' : 'bg-green-50'}`}>
-                    <Check size={20} className={isDark ? 'text-green-400' : 'text-green-500'} />
+                <div className="flex flex-col items-center justify-center py-10 gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/40' : 'bg-green-50'}`}>
+                    <Check size={18} className={isDark ? 'text-green-400' : 'text-green-500'} />
                   </div>
-                  <p className={`text-[13px] ${muted}`}>Aucune notification en attente</p>
+                  <p className={`text-[12px] ${muted}`}>Tout est validé ✓</p>
                 </div>
               ) : (
                 notifGrouped.map(({ uid, name, items }) => {
                   const allBusy = items.every(i => loading[i.id]);
                   return (
-                    <div key={uid} className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-[#242424] border-gray-700/50' : 'bg-gray-50 border-gray-100'}`}>
-                      {/* En-tête groupe */}
-                      <div className={`flex items-center gap-2 px-4 py-2.5 border-b ${isDark ? 'border-gray-700/50' : 'border-gray-100'}`}>
-                        <p className={`flex-1 text-[13px] font-semibold truncate ${title}`}>{name}</p>
-                        <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'}`}>
-                          {items.length}
-                        </span>
-                        <button
-                          onClick={() => handleApproveAll(items)}
-                          disabled={allBusy}
-                          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors disabled:opacity-40 shrink-0 ${isDark ? 'bg-green-900/40 text-green-400 hover:bg-green-900/60' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
-                        >
-                          <CheckCheck size={12} />
+                    <div key={uid} className={`rounded-2xl overflow-hidden ${isDark ? 'bg-white/5 border border-white/10' : 'bg-black/[0.03] border border-black/5'}`}>
+                      <div className={`flex items-center gap-2 px-3.5 py-2 border-b ${isDark ? 'border-white/10' : 'border-black/5'}`}>
+                        <p className={`flex-1 text-[12px] font-semibold truncate ${title}`}>{name}</p>
+                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${isDark ? 'bg-white/10 text-gray-400' : 'bg-black/8 text-gray-500'}`}>{items.length}</span>
+                        <button onClick={() => handleApproveAll(items)} disabled={allBusy}
+                          className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-medium transition-colors disabled:opacity-40 shrink-0 ${isDark ? 'bg-green-900/40 text-green-400 hover:bg-green-900/60' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}>
+                          <CheckCheck size={11} />
                           Tout valider
                         </button>
                       </div>
-
-                      {/* Entrées */}
                       {items.map(item => {
                         const cfg = typeConfig[item.type];
                         const TypeIcon = cfg.icon;
                         const busy = loading[item.id];
                         return (
-                          <div key={item.id} className={`flex items-center gap-3 px-4 py-2.5 border-b last:border-0 ${isDark ? 'border-gray-700/30' : 'border-gray-100'}`}>
-                            <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${cfg.color}`}>
-                              <TypeIcon size={11} />
+                          <div key={item.id} className={`flex items-center gap-2.5 px-3.5 py-2 border-b last:border-0 ${isDark ? 'border-white/5' : 'border-black/4'}`}>
+                            <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${cfg.color}`}>
+                              <TypeIcon size={10} />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className={`text-[12px] truncate ${muted}`}>{item.date} · {item.label}</p>
+                              <p className={`text-[11px] truncate ${muted}`}>{item.date} · {item.label}</p>
                             </div>
                             <div className="flex items-center gap-1 shrink-0">
-                              <button
-                                onClick={() => handleDismiss(item.id)}
-                                disabled={busy}
-                                title="Enlever la notification"
-                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${isDark ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
-                              >
-                                <X size={11} />
+                              <button onClick={() => handleDismiss(item.id)} disabled={busy}
+                                className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${isDark ? 'bg-white/10 text-gray-400 hover:bg-white/20' : 'bg-black/5 text-gray-400 hover:bg-black/10'}`}>
+                                <X size={10} />
                               </button>
-                              <button
-                                onClick={() => handleApprove(item)}
-                                disabled={busy}
-                                title="Valider"
-                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${isDark ? 'bg-green-900/40 text-green-400 hover:bg-green-900/60' : 'bg-green-50 text-green-500 hover:bg-green-100'}`}
-                              >
-                                <Check size={11} strokeWidth={2.5} />
+                              <button onClick={() => handleApprove(item)} disabled={busy}
+                                className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${isDark ? 'bg-green-900/40 text-green-400 hover:bg-green-900/60' : 'bg-green-50 text-green-500 hover:bg-green-100'}`}>
+                                <Check size={10} strokeWidth={2.5} />
                               </button>
                             </div>
                           </div>
@@ -495,6 +464,25 @@ export default function DashboardPage() {
                 })
               )}
             </div>
+          </div>
+
+          {/* Bulle cloche */}
+          <div className="fixed bottom-28 right-5 md:bottom-8 md:right-8 z-50" style={{ width: 52, height: 52 }}>
+            <button
+              onClick={() => setDrawerOpen(v => !v)}
+              className="relative w-full h-full rounded-full text-white flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{
+                background: 'linear-gradient(135deg, #0071E3 0%, #0055b3 100%)',
+                boxShadow: '0 4px 20px rgba(0,113,227,0.5), 0 2px 8px rgba(0,0,0,0.2)',
+              }}
+            >
+              <Bell size={20} />
+              {notifications.length > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center px-1 pointer-events-none shadow-sm">
+                  {notifications.length > 99 ? '99+' : notifications.length}
+                </span>
+              )}
+            </button>
           </div>
         </>
       )}
