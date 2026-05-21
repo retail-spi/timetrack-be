@@ -9,7 +9,7 @@ import {
   PieChart, Pie,
 } from 'recharts';
 
-const COLORS = ['#0071E3', '#34C759', '#FF9500', '#FF3B30', '#AF52DE', '#5AC8FA', '#FFCC00'];
+const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#F43F5E', '#8B5CF6', '#0EA5E9', '#F97316'];
 
 export default function ProjectStatsPage() {
   const { id } = useParams<{ id: string }>();
@@ -118,7 +118,7 @@ export default function ProjectStatsPage() {
                   cy="50%"
                   innerRadius={0}
                   outerRadius={90}
-                  paddingAngle={2}
+                  paddingAngle={0}
                   dataKey="value"
                 >
                   {taskData.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
