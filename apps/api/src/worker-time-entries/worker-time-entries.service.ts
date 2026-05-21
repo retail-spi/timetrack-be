@@ -4,16 +4,30 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { IsString, IsNumber, IsOptional, Min, Max } from 'class-validator';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { AlertsService } from '../alerts/alerts.service';
 import { AuditAction, EmployeeScope, Role, User } from '@prisma/client';
 
 export class CreateWorkerTimeEntryDto {
+  @IsString()
   date: string;
-  hours: number;          // doit être .0 ou .5
+
+  @IsNumber()
+  @Min(0.5)
+  @Max(24)
+  hours: number;
+
+  @IsString()
   taskTypeId: string;
+
+  @IsString()
+  @IsOptional()
   projectId?: string;
+
+  @IsString()
+  @IsOptional()
   note?: string;
 }
 
