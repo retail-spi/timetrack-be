@@ -100,7 +100,7 @@ export default function ProjectStatsPage() {
                 <XAxis type="number" tick={{ fontSize: 11, fill: axisColor }} tickLine={false} axisLine={false} unit="h" />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: isDark ? '#d1d5db' : '#374151' }} tickLine={false} axisLine={false} width={120} />
                 <Tooltip content={<TooltipBar />} cursor={{ fill: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)' }} />
-                <Bar dataKey="heures" radius={[0, 8, 8, 0]} maxBarSize={28} label={{ position: 'right', fontSize: 12, fill: axisColor, formatter: (v: number) => `${v}h` }}>
+                <Bar dataKey="heures" radius={[0, 8, 8, 0]} maxBarSize={28} label={{ position: 'right', fontSize: 12, fill: axisColor, formatter: (v: any) => `${v}h` }}>
                   {workerData.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Bar>
               </BarChart>
