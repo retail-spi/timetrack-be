@@ -131,7 +131,7 @@ export default function ProjectStatsPage() {
                     outerRadius={90}
                     paddingAngle={3}
                     dataKey="value"
-                    label={({ name, percent }) => `${Math.round(percent * 100)}%`}
+                    label={({ percent }: { percent?: number }) => `${Math.round((percent ?? 0) * 100)}%`}
                     labelLine={false}
                   >
                     {taskData.map((_: any, i: number) => (
