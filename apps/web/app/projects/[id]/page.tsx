@@ -9,7 +9,7 @@ import {
   PieChart, Pie,
 } from 'recharts';
 
-const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#F43F5E', '#8B5CF6', '#0EA5E9', '#F97316'];
+const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6', '#0EA5E9', '#F97316'];
 
 export default function ProjectStatsPage() {
   const { id } = useParams<{ id: string }>();
