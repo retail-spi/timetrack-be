@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { webApi } from '@/lib/api';
 import { Plus, Upload, X, Check, AlertCircle } from 'lucide-react';
 import { useIsDark } from '../theme-context';
@@ -56,7 +57,8 @@ async function parseFile(file: File): Promise<CsvRow[]> {
 }
 
 export default function ProjectsPage() {
-  const isDark = useIsDark();
+  const isDark  = useIsDark();
+  const router  = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -220,7 +222,7 @@ export default function ProjectsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {projects.map((project) => (
-          <div key={project.id} className={`${card} p-4`}>
+          <div key={project.id} className={`${card} p-4 cursor-pointer transition-shadow hover:shadow-md`} onClick={() => router.push(`/projects/${project.id}`)}>
             <div className="flex justify-between items-start mb-2">
               <h3 className={`text-[14px] font-semibold leading-tight ${title}`}>{project.name}</h3>
               <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${badgeStatus(project.isActive)}`}>{project.isActive ? 'Actif' : 'Inactif'}</span>

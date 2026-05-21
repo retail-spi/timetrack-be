@@ -15,6 +15,11 @@ export class ProjectsController {
     return this.service.findAll();
   }
 
+  @Get(':id/stats')
+  getStats(@Param('id') id: string) {
+    return this.service.getStats(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findOne(id);
