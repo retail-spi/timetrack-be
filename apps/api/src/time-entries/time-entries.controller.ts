@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Patch, HttpCode } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -6,13 +6,27 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { TimeEntriesService } from './time-entries.service';
 import { CreateTimeEntryDto } from './dto/create-time-entry.dto';
 import { UpdateTimeEntryDto } from './dto/update-time-entry.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import type { User } from '@prisma/client';
 import { Role } from '@prisma/client';
 
 @Controller('time-entries')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class TimeEntriesController {
-  constructor(private readonly service: TimeEntriesService) {}
+  constructor(
+    private readonly service: TimeEntriesService,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  @Delete('reset')
+  @Roles(Role.SUPER_ADMIN, Role.MANAGER)
+  @HttpCode(200)
+  async resetAll() {
+    await this.prisma.correction.deleteMany({});
+    await this.prisma.workerTimeEntry.deleteMany({});
+    await this.prisma.timeEntry.deleteMany({});
+    return { message: 'Historique de pointage supprimé.' };
+  }
 
   @Post()
   create(@Body() dto: CreateTimeEntryDto, @CurrentUser() user: User) {

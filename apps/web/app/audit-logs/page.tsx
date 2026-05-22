@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { webApi } from '@/lib/api';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, Trash2, AlertTriangle } from 'lucide-react';
 import { useIsDark } from '../theme-context';
 
 const actionColors = (isDark: boolean): Record<string, string> => ({
@@ -14,14 +14,30 @@ const actionColors = (isDark: boolean): Record<string, string> => ({
   EXPORT:  isDark ? 'bg-gray-700 text-gray-300'          : 'bg-gray-100 text-gray-500',
 });
 
+type ResetTarget = 'entries' | 'logs' | null;
+
 export default function AuditLogsPage() {
   const isDark = useIsDark();
-  const [logs, setLogs]       = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter]   = useState({ entity: '', action: '' });
+  const [logs, setLogs]           = useState<any[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [filter, setFilter]       = useState({ entity: '', action: '' });
+  const [confirm, setConfirm]     = useState<ResetTarget>(null);
+  const [resetting, setResetting] = useState(false);
 
   const load = async () => { setLogs(await webApi.auditLogs.list(filter)); setLoading(false); };
   useEffect(() => { load(); }, []);
+
+  const handleReset = async () => {
+    setResetting(true);
+    try {
+      if (confirm === 'entries') await webApi.admin.resetEntries();
+      if (confirm === 'logs')    await webApi.auditLogs.reset();
+      setConfirm(null);
+      if (confirm === 'logs') await load();
+    } finally {
+      setResetting(false);
+    }
+  };
 
   const card  = `rounded-2xl border ${isDark ? 'bg-[#1e1e1e] border-gray-700' : 'bg-white border-gray-200'}`;
   const title = isDark ? 'text-white' : 'text-gray-900';
@@ -32,12 +48,15 @@ export default function AuditLogsPage() {
   const aColors = actionColors(isDark);
   const fallbackBadge = isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-500';
 
+  const resetLabel = confirm === 'entries' ? 'tout l\'historique de pointage' : 'tous les audit logs';
+
   if (loading) return <div className={`p-8 text-[13px] ${muted}`}>Chargement...</div>;
 
   return (
     <div className="p-6 md:p-8">
       <h1 className={`text-[22px] font-semibold tracking-tight mb-6 ${title}`}>Audit logs</h1>
 
+      {/* Filtres */}
       <div className="flex flex-col md:flex-row gap-2 mb-5">
         <select value={filter.action} onChange={(e) => setFilter({ ...filter, action: e.target.value })} className={input}>
           <option value="">Toutes les actions</option>
@@ -49,6 +68,7 @@ export default function AuditLogsPage() {
         </button>
       </div>
 
+      {/* Logs mobile */}
       <div className="space-y-2.5 md:hidden">
         {logs.length === 0 && <div className={`${card} p-10 text-center`}><p className={`text-[13px] ${muted}`}>Aucun log</p></div>}
         {logs.map((log) => (
@@ -63,6 +83,7 @@ export default function AuditLogsPage() {
         ))}
       </div>
 
+      {/* Logs desktop */}
       <div className={`hidden md:block ${card} overflow-hidden`}>
         <table className="w-full">
           <thead>
@@ -86,6 +107,58 @@ export default function AuditLogsPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Zone dangereuse */}
+      <div className={`mt-8 rounded-2xl border p-5 ${isDark ? 'border-red-900/50 bg-red-950/20' : 'border-red-200 bg-red-50/50'}`}>
+        <div className="flex items-center gap-2 mb-4">
+          <AlertTriangle size={16} className={isDark ? 'text-red-400' : 'text-red-500'} />
+          <h2 className={`text-[14px] font-semibold ${isDark ? 'text-red-400' : 'text-red-600'}`}>Zone dangereuse</h2>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setConfirm('entries')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-colors ${isDark ? 'border-red-800 text-red-400 hover:bg-red-900/30' : 'border-red-300 text-red-600 hover:bg-red-100'}`}
+          >
+            <Trash2 size={14} /> Vider l'historique de pointage
+          </button>
+          <button
+            onClick={() => setConfirm('logs')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-colors ${isDark ? 'border-red-800 text-red-400 hover:bg-red-900/30' : 'border-red-300 text-red-600 hover:bg-red-100'}`}
+          >
+            <Trash2 size={14} /> Vider les audit logs
+          </button>
+        </div>
+      </div>
+
+      {/* Modale de confirmation */}
+      {confirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className={`w-full max-w-sm rounded-2xl p-6 shadow-2xl ${isDark ? 'bg-[#1e1e1e] border border-gray-700' : 'bg-white'}`}>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-4 ${isDark ? 'bg-red-900/30' : 'bg-red-50'}`}>
+              <AlertTriangle size={20} className={isDark ? 'text-red-400' : 'text-red-500'} />
+            </div>
+            <h3 className={`text-[16px] font-semibold mb-2 ${title}`}>Confirmer la suppression</h3>
+            <p className={`text-[13px] mb-6 ${sub}`}>
+              Tu vas supprimer définitivement <strong>{resetLabel}</strong>. Cette action est irréversible.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirm(null)}
+                className={`flex-1 py-2.5 rounded-xl text-[13px] font-medium transition-colors ${isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleReset}
+                disabled={resetting}
+                className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white transition-colors"
+              >
+                {resetting ? 'Suppression...' : 'Supprimer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

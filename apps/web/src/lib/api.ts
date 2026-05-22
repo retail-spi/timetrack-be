@@ -62,6 +62,10 @@ export const webApi = {
   },
   auditLogs: {
     list: (params?: object) => client.get('/audit-logs', { params }).then((r) => r.data),
+    reset: () => client.delete('/audit-logs/reset').then((r) => r.data),
+  },
+  admin: {
+    resetEntries: () => client.delete('/time-entries/reset').then((r) => r.data),
   },
   exports: {
     timeEntries: (from: string, to: string) =>
