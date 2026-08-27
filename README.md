@@ -54,15 +54,6 @@ npm run dev -- -p 3001
 
 Ouvre http://localhost:3001
 
-### 5. Mobile
-
-```bash
-cd apps/mobile
-npm install
-npx expo start --clear
-```
-
-Scanne le QR code avec Expo Go.
 
 ## Comptes demo
 
